@@ -1,176 +1,81 @@
 # BreakPoint Changelog
 
-All notable changes to this project will be documented in this file.
-
-This project follows a milestone-based development workflow.
+All notable changes to BreakPoint are documented here, grouped by development milestone. This file should be updated whenever a milestone is completed, per `CLAUDE_RULES.md`.
 
 ---
 
-# Version 0.1.0 — Project Initialization
+## Module 1 — Foundation & Design System
 
-Status: 🚧 In Progress
+### Milestone 43 — Design System Foundation
+- Registered official brand colors, neutral text/border colors, and border-radius values as Tailwind v4 design tokens in `app/globals.css` (`@theme inline` block).
+- Tokens added: `--color-primary-bg`, `--color-secondary-bg`, `--color-accent`, `--color-highlight`, `--color-text-primary/secondary/muted`, `--color-border-subtle`, `--radius-card/button/input/badge`.
+- No component styling changed yet — tokens only, ready for use in subsequent milestones.
 
-Release Date
-
-TBD
-
----
-
-## Added
-
-- Initialized Next.js project
-- Configured TypeScript
-- Configured Tailwind CSS
-- Configured App Router
-- Installed Monaco Editor
-- Created project structure
-- Created dashboard routes
-- Created workspace route
-- Created reusable component folder
-- Added global layout
-- Added landing page
+### Milestone 44 — Apply Design System to Shared UI
+- `Button.tsx`: restyled with `bg-accent`, `rounded-button`, `hover:brightness-110`, `active:brightness-90`, `cursor-pointer`.
+- `Card.tsx`: restyled with `bg-secondary-bg/90`, subtle border (`border-border-subtle`), `shadow-md`, roomier padding (`p-8`), `rounded-card`.
 
 ---
 
-## Components Added
+## Module 3 — Dashboard (UI Redesign)
 
-- Navbar
-- Hero
-- Features
-- HowItWorks
-- CTA
-- Footer
-- Sidebar
-- Workspace
-- ProblemPanel
-- CodeEditor
-- ConsolePanel
-- LanguageSelector
-- Timer
-- Button
-- Card
-- Container
-- Spinner
-- ThemeToggle
-- ToastContainer
-- SectionTitle
-- ScoreCard
-- RecentActivity
-- ProfileSummary
-- SubmissionHistory
+### Milestones 3.1–3.2 — Dashboard Premium Redesign
+Full visual redesign of the dashboard for a premium SaaS feel, inspired by (not copying) Cursor/Linear/Vercel. No routing, business logic, or functionality changes.
+
+**New components:**
+- `DashboardHeader.tsx` — time-aware greeting (Good Morning/Afternoon/Evening), welcome message, "Continue Practice" CTA linking to `/dashboard/workspace`.
+- `ProgressBar.tsx` — generic reusable 0–100% progress bar with gradient fill (accent → highlight), clamped value, animated width.
+- `StatCard.tsx` — gradient-bordered stat card with glow accent, `group-hover` lift/border-brighten/color-shift interaction, accepts an icon component + accent color variant as props.
+
+**Modified components:**
+- `app/dashboard/layout.tsx` — applies `bg-primary-bg` + `text-text-primary` as the dashboard's base canvas.
+- `ProfileSummary.tsx` — added level indicator, streak badge (Flame icon), XP progress bar (via `ProgressBar`), gradient avatar.
+- `RecentActivity.tsx` — added per-item mode icons (Bug/PenLine), category badges, colored Pass/Fail status with icons (CheckCircle2/XCircle), timestamp field, `divide-y` list separators.
+- `app/dashboard/page.tsx` — recomposed to render `DashboardHeader` → `ProfileSummary` → 3× `StatCard` (Snippets Solved, Current Streak, Accuracy) → `RecentActivity`.
+
+**Dependencies added:**
+- `lucide-react` — icon library.
+
+**Known follow-up:** `Sidebar.tsx` remains unstyled (light background) and visually clashes with the new dark dashboard canvas. Scheduled for its own redesign in Module 2 (Navigation & Layout).
 
 ---
 
-## Documentation
+## Earlier Development (Pre-Documentation, Milestones 1–42)
 
-Added
+The following was built before official project documentation (`BREAKPOINT_VISION.md`, `DESIGN_SYSTEM.md`, etc.) was introduced, using default Tailwind styling. Functionality is stable; visual restyling to the official design system is ongoing (see Modules 1 and 3 above).
 
-- ROADMAP.md
-- DESIGN_SYSTEM.md
-- COMPONENT_GUIDE.md
-- FEATURES.md
-- CHANGELOG.md
+**Landing Page**
+- Hero, Features, HowItWorks, CTA, Footer sections; Navbar (global, in root layout); Footer.
+- Shared UI: `Button`, `Card`, `SectionTitle`, `Container`.
 
----
+**Dashboard Shell**
+- Nested route/layout at `/dashboard`; `Sidebar` navigation (Overview, Practice, Snippets).
 
-## Workspace Progress
+**Workspace (Core Coding Experience)**
+- `/dashboard/workspace` — split layout: `ProblemPanel` (difficulty badge, description) + `Workspace` (stateful client component).
+- Monaco Editor integration (`CodeEditor.tsx`) with language switching (`LanguageSelector.tsx`, lifted state pattern).
+- `ConsolePanel.tsx` — simulated run/submit output.
+- Run and Submit buttons with simulated async grading (`setTimeout`), toast notification on submit (`ToastContext`/`ToastContainer`).
+- `Timer.tsx` — elapsed time tracker (`useEffect` + `setInterval`).
+- Mobile optimization pass: responsive stacking, editor height, toolbar wrapping (Problem Panel, CodeEditor, Workspace).
 
-Completed
+**Practice / Challenge List**
+- `/dashboard/practice` — challenge list with difficulty filter buttons, search bar, and topic tags (nested `.map()`).
 
-- Monaco Editor integration
-- Language selector
-- Mock console
-- Run button
-- Submit button
-- Timer component
-- Responsive workspace layout
+**Results**
+- `/dashboard/results` — `ScoreCard` (last submission summary), `AIFeedbackCard` (placeholder AI feedback), `SubmissionHistory` (past attempts list).
 
-Still In Progress
+**Authentication (UI only, no backend)**
+- `/login`, `/register` (with password-match validation), `/forgot-password` (form-to-confirmation swap pattern).
 
-- Visual redesign
-- Toolbar improvements
-- Theme selector
-- Font size selector
-- Reset button
+**Global Features**
+- Dark mode (`ThemeContext`, `ThemeToggle`, `localStorage` persistence).
+- Toast notifications (`ToastContext`, `ToastContainer`).
+- Custom error pages: `app/not-found.tsx` (404), `app/error.tsx` (error boundary).
+- `Spinner.tsx` and `app/dashboard/loading.tsx` (Next.js loading convention, not yet visually tested with real async data).
 
----
-
-## Dashboard Progress
-
-Completed
-
-- Dashboard layout
-- Sidebar
-
-In Progress
-
-- Statistics
-- Profile
-- Activity cards
-
----
-
-## Landing Page
-
-Completed
-
-- Hero
-- Features
-- How It Works
-- CTA
-- Footer
-
----
-
-## Known Issues
-
-- UI redesign still in progress
-- Temporary mock grading
-- Fake console execution
-- AI integration not implemented
-- Authentication pages not connected
-- User data is static
-
----
-
-## Next Milestone
-
-Module 1
-
-Milestone 1.1
-
-Brand Identity
-
-Tasks
-
-- Apply official color palette
-- Improve typography
-- Establish spacing system
-- Global design tokens
-
----
-
-# Version History
-
-## 0.1.0
-
-Project initialization.
-
-Current development version.
-
----
-
-# Notes
-
-Every completed milestone should update this file.
-
-For each future version include:
-
-- Version number
-- Release date
-- Features added
-- Features changed
-- Bug fixes
-- Breaking changes (if any)
-
-This file should always reflect the development history of BreakPoint.
+**Known gaps (carried forward):**
+- No authentication/backend — all data is hardcoded/placeholder.
+- `Sidebar.tsx` still uses plain `<a>` tags instead of `next/link`.
+- No real code execution or AI grading (Run/Submit are simulated).
+- Design system not yet applied to: Sidebar, Navbar, landing page sections, workspace components, auth pages.
