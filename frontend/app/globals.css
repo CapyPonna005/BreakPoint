@@ -10,6 +10,24 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* BreakPoint Design System — Brand Colors */
+  --color-primary-bg: #1e104e;
+  --color-secondary-bg: #452e5a;
+  --color-accent: #ff653f;
+  --color-highlight: #ffc85c;
+
+  /* BreakPoint Design System — Neutral Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d6d6e7;
+  --color-text-muted: #a7a4c4;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* BreakPoint Design System — Border Radius */
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --radius-input: 12px;
+  --radius-badge: 9999px;
 }
 
 @media (prefers-color-scheme: dark) {
