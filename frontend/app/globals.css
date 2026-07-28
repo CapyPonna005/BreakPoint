@@ -17,6 +17,9 @@
   --color-accent: #ff653f;
   --color-highlight: #ffc85c;
 
+  /* BreakPoint Design System — Workspace Surface (near-black, IDE-style) */
+  --color-surface: #120b29;
+
   /* BreakPoint Design System — Neutral Colors */
   --color-text-primary: #ffffff;
   --color-text-secondary: #d6d6e7;

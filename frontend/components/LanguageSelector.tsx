@@ -15,7 +15,7 @@ export default function LanguageSelector({
     <select
       value={language}
       onChange={(e) => onChange(e.target.value)}
-      className="text-sm border rounded-md px-2 py-1 bg-white"
+      className="text-sm border border-border-subtle rounded-input px-2 py-1 bg-secondary-bg text-text-primary cursor-pointer"
     >
       {languages.map((lang) => (
         <option key={lang} value={lang}>

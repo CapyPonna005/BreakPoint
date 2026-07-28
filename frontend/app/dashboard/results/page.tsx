@@ -21,8 +21,8 @@ const history: { challenge: string; date: string; result: "Passed" | "Failed" }[
 
 export default function ResultsPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Results</h1>
+    <div className="min-h-screen bg-primary-bg p-6">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Results</h1>
 
       <div className="flex flex-col gap-4 mb-8">
         <ScoreCard

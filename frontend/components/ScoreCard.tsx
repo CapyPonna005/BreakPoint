@@ -17,14 +17,14 @@ export default function ScoreCard({
 }: ScoreCardProps) {
   return (
     <Card>
-      <p className="text-sm text-gray-500 mb-1">Last Submission</p>
-      <h2 className="text-lg font-semibold mb-2">{challenge}</h2>
+      <p className="text-sm text-text-muted mb-1">Last Submission</p>
+      <h2 className="text-lg font-semibold text-text-primary mb-2">{challenge}</h2>
       <div className="flex items-center gap-4">
-        <span className="text-2xl font-bold text-green-600">{score}</span>
-        <span className="text-sm text-gray-500">
+        <span className="text-2xl font-bold text-highlight">{score}</span>
+        <span className="text-sm text-text-secondary">
           {testsPassed}/{testsTotal} tests passed
         </span>
-        <span className="text-sm text-gray-400">{submittedAt}</span>
+        <span className="text-sm text-text-muted">{submittedAt}</span>
       </div>
     </Card>
   );

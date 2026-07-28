@@ -1,9 +1,13 @@
 "use client";
 
-import Editor from "@monaco-editor/react";
+import Editor, { BeforeMount } from "@monaco-editor/react";
 
 type CodeEditorProps = {
   language: string;
+  value: string;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
+  fontSize?: number;
 };
 
 const languageMap: Record<string, string> = {
@@ -12,17 +16,40 @@ const languageMap: Record<string, string> = {
   Python: "python",
 };
 
-export default function CodeEditor({ language }: CodeEditorProps) {
+const handleBeforeMount: BeforeMount = (monaco) => {
+  monaco.editor.defineTheme("breakpoint-dark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#3A2650",
+      "editor.lineHighlightBackground": "#452E5A",
+      "editorLineNumber.foreground": "#A7A4C4",
+      "editorGutter.background": "#3A2650",
+    },
+  });
+};
+
+export default function CodeEditor({
+  language,
+  value,
+  onChange,
+  readOnly = false,
+  fontSize = 14,
+}: CodeEditorProps) {
   return (
-    <div className="w-full h-[300px] md:h-[400px] border rounded-lg overflow-hidden">
+    <div className="w-full h-[300px] md:h-[400px] border border-border-subtle rounded-input overflow-hidden">
       <Editor
         height="100%"
         language={languageMap[language]}
-        defaultValue={`function example() {\n  // your code here\n}`}
-        theme="vs-dark"
+        value={value}
+        theme="breakpoint-dark"
+        beforeMount={handleBeforeMount}
+        onChange={(newValue) => onChange?.(newValue ?? "")}
         options={{
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize,
+          readOnly,
         }}
       />
     </div>

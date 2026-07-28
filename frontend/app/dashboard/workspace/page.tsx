@@ -1,11 +1,6 @@
-import ProblemPanel from "@/components/ProblemPanel";
-import Workspace from "@/components/Workspace";
+import { redirect } from "next/navigation";
+import { problems } from "@/data/problems";
 
-export default function WorkspacePage() {
-  return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <ProblemPanel />
-      <Workspace />
-    </div>
-  );
+export default function WorkspaceIndexPage() {
+  redirect(`/dashboard/workspace/${problems[0].id}`);
 }
