@@ -3,6 +3,29 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* BreakPoint Design System — Light Mode */
+  --primary-bg: #F4F2FA;
+  --secondary-bg: #FFFFFF;
+  --surface: #EDEAF6;
+  --text-primary: #1E104E;
+  --text-secondary: #45385E;
+  --text-muted: #7A7295;
+  --border-subtle: rgba(30, 16, 78, 0.1);
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  /* BreakPoint Design System — Dark Mode (original palette) */
+  --primary-bg: #1E104E;
+  --secondary-bg: #452E5A;
+  --surface: #120B29;
+  --text-primary: #FFFFFF;
+  --text-secondary: #D6D6E7;
+  --text-muted: #A7A4C4;
+  --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
@@ -11,20 +34,18 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* BreakPoint Design System — Brand Colors */
-  --color-primary-bg: #1e104e;
-  --color-secondary-bg: #452e5a;
+  /* BreakPoint Design System — Brand Colors (theme-independent) */
   --color-accent: #ff653f;
   --color-highlight: #ffc85c;
 
-  /* BreakPoint Design System — Workspace Surface (near-black, IDE-style) */
-  --color-surface: #120b29;
-
-  /* BreakPoint Design System — Neutral Colors */
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #d6d6e7;
-  --color-text-muted: #a7a4c4;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  /* BreakPoint Design System — Theme-aware tokens */
+  --color-primary-bg: var(--primary-bg);
+  --color-secondary-bg: var(--secondary-bg);
+  --color-surface: var(--surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
 
   /* BreakPoint Design System — Border Radius */
   --radius-card: 16px;
@@ -33,15 +54,14 @@
   --radius-badge: 9999px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid #ff653f;
+  outline-offset: 2px;
+  border-radius: 4px;
 }

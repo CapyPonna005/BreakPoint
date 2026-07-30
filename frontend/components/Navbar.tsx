@@ -7,7 +7,7 @@ export default function Navbar() {
     <nav className="relative z-10 w-full flex items-center justify-between px-6 py-4 bg-secondary-bg border-b border-border-subtle shadow-lg">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-button bg-gradient-to-br from-accent to-highlight flex items-center justify-center">
-          <Zap className="w-4 h-4 text-text-primary" />
+          <Zap className="w-4 h-4 text-white" />
         </div>
         <span className="text-xl font-bold text-text-primary">BreakPoint</span>
       </div>

@@ -41,7 +41,7 @@ export default function PracticePage() {
             onClick={() => setActiveFilter(filter)}
             className={`text-sm px-3 py-1 rounded-badge border transition cursor-pointer ${
               activeFilter === filter
-                ? "bg-accent text-text-primary border-accent"
+                ? "bg-accent text-white border-accent"
                 : "border-border-subtle text-text-muted hover:text-text-secondary"
             }`}
           >

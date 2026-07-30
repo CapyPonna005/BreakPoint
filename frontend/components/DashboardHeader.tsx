@@ -30,7 +30,7 @@ export default function DashboardHeader() {
       </div>
       <Link
         href="/dashboard/workspace"
-        className="shrink-0 bg-accent text-text-primary px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer text-center"
+        className="shrink-0 bg-accent text-white px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer text-center"
       >
         Continue Practice
       </Link>

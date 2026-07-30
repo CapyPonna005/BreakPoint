@@ -2,6 +2,7 @@
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Card from "@/components/Card";
+import { useTheme } from "@/context/ThemeContext";
 
 const data = [
   { day: "Mon", solved: 1 },
@@ -14,6 +15,13 @@ const data = [
 ];
 
 export default function WeeklyActivityChart() {
+  const { darkMode } = useTheme();
+
+  const axisColor = darkMode ? "#A7A4C4" : "#7A7295";
+  const tooltipBg = darkMode ? "#120B29" : "#FFFFFF";
+  const tooltipBorder = darkMode ? "rgba(255,255,255,0.08)" : "rgba(30,16,78,0.1)";
+  const tooltipText = darkMode ? "#FFFFFF" : "#1E104E";
+
   return (
     <Card>
       <h2 className="text-lg font-semibold text-text-primary mb-4">
@@ -24,13 +32,13 @@ export default function WeeklyActivityChart() {
           <LineChart data={data}>
             <XAxis
               dataKey="day"
-              stroke="#A7A4C4"
+              stroke={axisColor}
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="#A7A4C4"
+              stroke={axisColor}
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -39,12 +47,12 @@ export default function WeeklyActivityChart() {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#120B29",
-                border: "1px solid rgba(255,255,255,0.08)",
+                backgroundColor: tooltipBg,
+                border: `1px solid ${tooltipBorder}`,
                 borderRadius: "12px",
-                color: "#FFFFFF",
+                color: tooltipText,
               }}
-              labelStyle={{ color: "#A7A4C4" }}
+              labelStyle={{ color: axisColor }}
             />
             <Line
               type="monotone"

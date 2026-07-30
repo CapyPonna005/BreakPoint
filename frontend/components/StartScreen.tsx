@@ -31,7 +31,7 @@ export default function StartScreen({ problem, onStart }: StartScreenProps) {
               onClick={() => setSelected(level)}
               className={`text-sm px-3 py-1.5 rounded-badge border transition cursor-pointer ${
                 selected === level
-                  ? "bg-accent text-text-primary border-accent"
+                  ? "bg-accent text-white border-accent"
                   : "border-border-subtle text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -42,7 +42,7 @@ export default function StartScreen({ problem, onStart }: StartScreenProps) {
 
         <button
           onClick={onStart}
-          className="inline-flex items-center gap-2 bg-accent text-text-primary px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+          className="inline-flex items-center gap-2 bg-accent text-white px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
         >
           <Play className="w-4 h-4" />
           Start Challenge

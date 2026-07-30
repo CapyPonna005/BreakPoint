@@ -1,52 +1,43 @@
-"use client";
+import { LucideIcon } from "lucide-react";
 
-import { useState } from "react";
-import { Play } from "lucide-react";
-import type { Problem, Difficulty } from "@/data/problems";
-
-const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
-
-type StartScreenProps = {
-  problem: Problem;
-  onStart: () => void;
+type StatCardProps = {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  description: string;
+  accent?: "accent" | "highlight";
 };
 
-export default function StartScreen({ problem, onStart }: StartScreenProps) {
-  const [selected, setSelected] = useState<Difficulty>(problem.difficulty);
+export default function StatCard({
+  icon: Icon,
+  label,
+  value,
+  description,
+  accent = "accent",
+}: StatCardProps) {
+  const glowColor = accent === "accent" ? "bg-accent" : "bg-highlight";
+  const iconColor = accent === "accent" ? "text-accent" : "text-highlight";
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full max-w-sm px-4">
-      <div className="bg-secondary-bg border border-border-subtle rounded-card shadow-lg p-6 text-center">
-        <h2 className="text-lg font-bold text-text-primary mb-1">
-          Ready to begin?
-        </h2>
-        <p className="text-text-muted text-sm mb-5">
-          Choose a difficulty and start the challenge.
-        </p>
+    <div className="group relative p-[1px] rounded-card bg-gradient-to-br from-white/15 to-transparent hover:from-white/30 transition-all">
+      <div className="relative overflow-hidden rounded-card bg-gradient-to-br from-secondary-bg to-secondary-bg/70 p-6 h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+        <div
+          className={`absolute -top-6 -right-6 w-24 h-24 ${glowColor} opacity-20 blur-2xl rounded-full pointer-events-none`}
+        />
 
-        <div className="flex justify-center gap-2 mb-6">
-          {difficulties.map((level) => (
-            <button
-              key={level}
-              onClick={() => setSelected(level)}
-              className={`text-sm px-3 py-1.5 rounded-badge border transition cursor-pointer ${
-                selected === level
-                  ? "bg-accent text-text-primary border-accent"
-                  : "border-border-subtle text-text-muted hover:text-text-secondary"
-              }`}
-            >
-              {level}
-            </button>
-          ))}
+        <div className="relative flex items-center justify-between mb-3">
+          <p className="text-text-muted text-sm">{label}</p>
+          <Icon
+            className={`w-5 h-5 ${iconColor} transition-colors group-hover:brightness-125`}
+          />
         </div>
 
-        <button
-          onClick={onStart}
-          className="inline-flex items-center gap-2 bg-accent text-text-primary px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+        <p
+          className={`relative text-3xl font-bold text-text-primary transition-colors group-hover:${iconColor}`}
         >
-          <Play className="w-4 h-4" />
-          Start Challenge
-        </button>
+          {value}
+        </p>
+        <p className="relative text-text-muted text-xs mt-1">{description}</p>
       </div>
     </div>
   );

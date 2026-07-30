@@ -6,13 +6,14 @@ export default function ProfileSummary() {
   const xpToNextLevel = 1000;
   const level = 4;
   const streak = 4;
+  const bio = "Debugging my way through CS, one breakpoint at a time.";
 
   return (
     <div className="p-[1px] rounded-card bg-gradient-to-br from-white/15 to-transparent">
       <div className="rounded-card bg-gradient-to-br from-secondary-bg to-secondary-bg/70 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-text-primary font-bold text-lg">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-white font-bold text-lg">
               P
             </div>
             <div>
@@ -30,6 +31,8 @@ export default function ProfileSummary() {
             </span>
           </div>
         </div>
+
+        <p className="text-sm text-text-secondary italic mb-4">"{bio}"</p>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">

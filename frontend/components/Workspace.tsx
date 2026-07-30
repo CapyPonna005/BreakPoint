@@ -136,7 +136,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="text-sm px-3 py-1.5 bg-accent text-text-primary rounded-button hover:brightness-110 active:brightness-90 disabled:opacity-50 transition cursor-pointer"
+                className="text-sm px-3 py-1.5 bg-accent text-white rounded-button hover:brightness-110 active:brightness-90 disabled:opacity-50 transition cursor-pointer"
               >
                 {submitting ? "Submitting..." : "Submit"}
               </button>
