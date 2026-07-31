@@ -3,15 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Zap } from "lucide-react";
+import FloatingField from "@/components/FloatingField";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (field: keyof typeof formData) => (value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+    setError("");
+    console.log("Login attempt:", formData);
   }
 
   return (
@@ -26,61 +34,48 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-secondary-bg/90 border border-border-subtle rounded-card shadow-lg p-6 flex flex-col gap-4"
+          className="bg-secondary-bg border border-border-subtle rounded-card shadow-lg p-6 flex flex-col gap-4"
         >
           <h1 className="text-lg font-bold text-text-primary text-center mb-1">
-            Log in to your account
+            Welcome back
           </h1>
 
-          <div className="relative">
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder=" "
-              className="peer w-full bg-primary-bg border border-border-subtle rounded-input px-3 pt-4 pb-1.5 text-sm text-text-primary"
-            />
-            <label
-              htmlFor="email"
-              className="absolute left-3 top-1/2 -translate-y-1/2 px-1 bg-secondary-bg text-sm text-text-muted transition-all pointer-events-none peer-focus:-top-2 peer-focus:translate-y-0 peer-focus:text-xs peer-focus:text-accent peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-text-secondary"
-            >
-              Email
-            </label>
-          </div>
+          {error && (
+            <p className="text-sm text-red-400 bg-red-500/10 px-3 py-2 rounded-input">
+              {error}
+            </p>
+          )}
 
-          <div className="relative">
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder=" "
-              className="peer w-full bg-primary-bg border border-border-subtle rounded-input px-3 pt-4 pb-1.5 text-sm text-text-primary"
-            />
-            <label
-              htmlFor="password"
-              className="absolute left-3 top-1/2 -translate-y-1/2 px-1 bg-secondary-bg text-sm text-text-muted transition-all pointer-events-none peer-focus:-top-2 peer-focus:translate-y-0 peer-focus:text-xs peer-focus:text-accent peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-text-secondary"
-            >
-              Password
-            </label>
-          </div>
+          <FloatingField
+            id="email"
+            label="Email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange("email")}
+            required
+          />
 
-          <div className="flex items-center justify-between text-xs">
-            <label className="flex items-center gap-2 text-text-muted cursor-pointer">
+          <FloatingField
+            id="password"
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange("password")}
+            required
+          />
+
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-1 text-xs text-text-muted cursor-pointer">
               <input
                 type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="accent-accent w-3.5 h-3.5 cursor-pointer"
+                className="w-4 h-3 accent-accent cursor-pointer"
               />
               Remember me
             </label>
+
             <Link
               href="/forgot-password"
-              className="text-accent hover:brightness-110 transition"
+              className="text-xs text-text-muted hover:text-accent transition"
             >
               Forgot password?
             </Link>
@@ -88,14 +83,17 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="mt-2 bg-accent text-white rounded-button py-2 text-sm font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+            className="mt-1 bg-accent text-white rounded-button py-2 text-sm font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
           >
             Log In
           </button>
 
           <p className="text-sm text-text-muted text-center">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-accent hover:brightness-110 transition">
+            <Link
+              href="/register"
+              className="text-accent hover:brightness-110 transition"
+            >
               Sign up
             </Link>
           </p>
