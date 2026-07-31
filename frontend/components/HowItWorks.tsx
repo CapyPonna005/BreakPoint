@@ -21,17 +21,26 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-16">
+    <section className="w-full bg-surface py-20">
       <Container>
-        <SectionTitle>How BreakPoint Works</SectionTitle>
+        <SectionTitle eyebrow="The process">How BreakPoint Works</SectionTitle>
         <div className="flex flex-col sm:flex-row gap-6">
-          {steps.map((step) => (
-            <div key={step.number} className="flex-1 text-center p-6">
-              <div className="text-2xl font-bold text-gray-400 mb-2">
-                {step.number}
+          {steps.map((step, index) => (
+            <div key={step.number} className="flex-1 relative">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-white font-bold text-lg mb-4">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-semibold text-text-primary mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-text-muted text-sm max-w-xs">
+                  {step.description}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-              <p className="text-gray-500">{step.description}</p>
+              {index < steps.length - 1 && (
+                <div className="hidden sm:block absolute top-6 left-[calc(50%+2rem)] w-[calc(100%-4rem)] h-[2px] bg-gradient-to-r from-border-subtle to-transparent" />
+              )}
             </div>
           ))}
         </div>
