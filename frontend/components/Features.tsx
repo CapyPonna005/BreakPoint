@@ -1,4 +1,4 @@
-import { Bug, PenLine, Sparkles, FolderCode } from "lucide-react";
+import { Bug, PenLine, Sparkles, Wand2 } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import Container from "@/components/Container";
 
@@ -22,9 +22,10 @@ const features = [
     accent: "accent" as const,
   },
   {
-    icon: FolderCode,
-    title: "Snippet Manager",
-    description: "Save and organize code snippets you want to practice.",
+    icon: Wand2,
+    title: "Turn Any Code Into a Challenge",
+    description:
+      "Paste a snippet or upload a screenshot — our AI finds a realistic bug and builds a challenge around it, instantly.",
     accent: "highlight" as const,
   },
 ];

@@ -13,7 +13,7 @@ export default function CTA() {
               Ready to level up?
             </h2>
             <p className="relative text-text-secondary max-w-xl mx-auto mb-8">
-              Start practicing with real bugs and real code — no setup required.
+              Practice curated challenges, or turn your own code into one — no setup required.
             </p>
             <button className="relative bg-accent text-white px-8 py-3 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer">
               Get Started

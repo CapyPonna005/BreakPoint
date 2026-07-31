@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <h1 className="text-lg font-bold text-text-primary text-center mb-1">
-                Reset your password
+                Reset password
               </h1>
               <p className="text-sm text-text-muted text-center mb-2">
                 Enter your email and we&apos;ll send you a reset link.

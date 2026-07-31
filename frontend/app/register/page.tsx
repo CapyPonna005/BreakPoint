@@ -45,7 +45,7 @@ export default function RegisterPage() {
           className="bg-secondary-bg border border-border-subtle rounded-card shadow-lg p-6 flex flex-col gap-4"
         >
           <h1 className="text-lg font-bold text-text-primary text-center mb-1">
-            Create your account
+            Create an account
           </h1>
 
           {error && (

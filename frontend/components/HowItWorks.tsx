@@ -4,8 +4,8 @@ import Container from "@/components/Container";
 const steps = [
   {
     number: "1",
-    title: "Pick a Snippet",
-    description: "Choose a bug-fix or fill-in-the-blank challenge from the library.",
+    title: "Choose or Create a Challenge",
+    description: "Pick from our library, or paste/screenshot code you want to learn from.",
   },
   {
     number: "2",
