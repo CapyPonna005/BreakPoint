@@ -1,9 +1,11 @@
 export type Difficulty = "Easy" | "Medium" | "Hard";
+export type Mode = "Bug-Fix" | "Fill-in-the-Blank";
 
 export type Problem = {
   id: string;
   title: string;
   difficulty: Difficulty;
+  mode: Mode;
   blurb: string;
   description: string;
   tags: string[];
@@ -17,6 +19,7 @@ export const problems: Problem[] = [
     id: "off-by-one-loop",
     title: "Fix the Off-by-One Loop",
     difficulty: "Easy",
+    mode: "Bug-Fix",
     blurb: "A short bug-fix challenge involving loop boundaries.",
     description:
       "The loop below is supposed to print numbers 1 through 5, but it's printing one too many. Find and fix the bug.",

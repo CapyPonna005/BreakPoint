@@ -71,6 +71,7 @@ export default function CreateChallengePage() {
 
       const problem: Problem = {
         id: `${slugify(generated.title)}-${Date.now()}`,
+        mode: "Bug-Fix", // only mode with real functionality today; see note below for Fill-in-the-Blank
         ...generated,
       };
 
@@ -124,6 +125,7 @@ export default function CreateChallengePage() {
 
       const problem: Problem = {
         id: `${slugify(generated.title)}-${Date.now()}`,
+        mode: "Bug-Fix", // only mode with real functionality today; see note below for Fill-in-the-Blank
         ...generated,
       };
 

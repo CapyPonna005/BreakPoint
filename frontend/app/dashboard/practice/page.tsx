@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { problems } from "@/data/problems";
+import { Bug, PenLine } from "lucide-react";
+import { problems, type Mode } from "@/data/problems";
 
 const filters = ["All", "Easy", "Medium", "Hard"] as const;
+
+const modeIcons: Record<Mode, typeof Bug> = {
+  "Bug-Fix": Bug,
+  "Fill-in-the-Blank": PenLine,
+};
 
 export default function PracticePage() {
   const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>(
@@ -54,34 +60,43 @@ export default function PracticePage() {
         {filteredChallenges.length === 0 ? (
           <p className="text-text-muted text-sm">No challenges match your search.</p>
         ) : (
-          filteredChallenges.map((challenge) => (
-            <Link
-              key={challenge.id}
-              href={`/dashboard/workspace/${challenge.id}`}
-              className="flex items-center justify-between p-4 bg-secondary-bg/90 border border-border-subtle rounded-card hover:border-accent/50 transition cursor-pointer"
-            >
-              <div>
-                <p className="font-medium text-text-primary">{challenge.title}</p>
-                <div className="flex gap-1 mt-2">
-                  {challenge.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-0.5 bg-primary-bg text-text-muted rounded-badge"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <span
-                className={`text-xs font-medium px-2 py-1 rounded-badge ${
-                  difficultyColors[challenge.difficulty]
-                }`}
+          filteredChallenges.map((challenge) => {
+            const ModeIcon = modeIcons[challenge.mode];
+            return (
+              <Link
+                key={challenge.id}
+                href={`/dashboard/workspace/${challenge.id}`}
+                className="flex items-center justify-between p-4 bg-secondary-bg/90 border border-border-subtle rounded-card hover:border-accent/50 transition cursor-pointer"
               >
-                {challenge.difficulty}
-              </span>
-            </Link>
-          ))
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-text-primary">{challenge.title}</p>
+                    <span className="flex items-center gap-1 text-xs text-text-muted">
+                      <ModeIcon className="w-3.5 h-3.5" />
+                      {challenge.mode}
+                    </span>
+                  </div>
+                  <div className="flex gap-1 mt-2">
+                    {challenge.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2 py-0.5 bg-primary-bg text-text-muted rounded-badge"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-badge ${
+                    difficultyColors[challenge.difficulty]
+                  }`}
+                >
+                  {challenge.difficulty}
+                </span>
+              </Link>
+            );
+          })
         )}
       </div>
     </div>
