@@ -29,6 +29,12 @@ Otherwise, respond with ONLY valid JSON matching this exact shape, no other text
   "starterCode": string
 }`;
 
+// Server-side upload limits. The frontend's <input accept="image/*"> and
+// drag-drop filter only check file.type client-side, which is trivially
+// spoofable and doesn't stop a huge file — these are the real gate.
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+
 export async function POST(request: NextRequest) {
   const identifier = request.headers.get("x-forwarded-for") ?? "anonymous";
   const rateLimit = checkRateLimit(identifier);
@@ -54,6 +60,20 @@ export async function POST(request: NextRequest) {
   if (!difficulty) {
     return NextResponse.json(
       { error: "No difficulty provided." },
+      { status: 400 }
+    );
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
+    return NextResponse.json(
+      { error: "Unsupported image type. Please upload a PNG, JPEG, WEBP, or GIF." },
+      { status: 400 }
+    );
+  }
+
+  if (image.size > MAX_IMAGE_BYTES) {
+    return NextResponse.json(
+      { error: "Image is too large. Please upload a screenshot under 5MB." },
       { status: 400 }
     );
   }

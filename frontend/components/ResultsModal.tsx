@@ -3,6 +3,13 @@ import ScoreCard from "@/components/ScoreCard";
 import AIFeedbackCard from "@/components/AIFeedbackCard";
 import Tooltip from "@/components/Tooltip";
 
+type NoteSeverity = "critical" | "suggestion";
+
+type FeedbackNote = {
+  severity: NoteSeverity;
+  text: string;
+};
+
 type ResultsModalProps = {
   challenge: string;
   score: string;
@@ -10,6 +17,7 @@ type ResultsModalProps = {
   testsTotal: number;
   time: string;
   feedback: string;
+  notes?: FeedbackNote[];
   onClose: () => void;
 };
 
@@ -20,6 +28,7 @@ export default function ResultsModal({
   testsTotal,
   time,
   feedback,
+  notes = [],
   onClose,
 }: ResultsModalProps) {
   return (
@@ -44,7 +53,7 @@ export default function ResultsModal({
             testsTotal={testsTotal}
             submittedAt={time}
           />
-          <AIFeedbackCard feedback={feedback} />
+          <AIFeedbackCard feedback={feedback} notes={notes} />
         </div>
       </div>
     </div>

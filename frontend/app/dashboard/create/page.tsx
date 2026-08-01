@@ -2,12 +2,33 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Code2, Image as ImageIcon, Sparkles, Loader2, Upload, X } from "lucide-react";
+import {
+  Code2,
+  Image as ImageIcon,
+  Sparkles,
+  Loader2,
+  Upload,
+  X,
+  Zap,
+  Flame,
+  Skull,
+} from "lucide-react";
 import { addGeneratedProblem, type Problem, type Difficulty } from "@/data/problems";
 
 type Tab = "paste" | "screenshot";
 
-const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
+const difficulties: { level: Difficulty; icon: typeof Zap }[] = [
+  { level: "Easy", icon: Zap },
+  { level: "Medium", icon: Flame },
+  { level: "Hard", icon: Skull },
+];
+
+// Matches the color scheme already established in ProblemPanel / StartScreen / Practice badges.
+const difficultyStyles: Record<Difficulty, { bg: string; text: string; border: string }> = {
+  Easy: { bg: "bg-highlight/15", text: "text-highlight", border: "border-highlight" },
+  Medium: { bg: "bg-accent/15", text: "text-accent", border: "border-accent" },
+  Hard: { bg: "bg-red-500/15", text: "text-red-400", border: "border-red-500" },
+};
 
 function slugify(text: string) {
   return text
@@ -153,19 +174,24 @@ export default function CreateChallengePage() {
           <div className="mb-5">
             <p className="text-sm text-text-secondary mb-2">Target difficulty</p>
             <div className="flex gap-2">
-              {difficulties.map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setDifficulty(level)}
-                  className={`text-sm px-3 py-1.5 rounded-badge border transition cursor-pointer ${
-                    difficulty === level
-                      ? "bg-accent text-white border-accent"
-                      : "border-border-subtle text-text-muted hover:text-text-secondary"
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
+              {difficulties.map(({ level, icon: Icon }) => {
+                const isSelected = difficulty === level;
+                const style = difficultyStyles[level];
+                return (
+                  <button
+                    key={level}
+                    onClick={() => setDifficulty(level)}
+                    className={`flex items-center gap-1.5 text-sm px-3.5 py-1.5 rounded-badge border transition cursor-pointer ${
+                      isSelected
+                        ? `${style.bg} ${style.text} ${style.border}`
+                        : "border-border-subtle text-text-muted hover:text-text-secondary hover:border-text-muted"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {level}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

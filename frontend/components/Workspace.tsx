@@ -22,6 +22,19 @@ type WorkspaceProps = {
   onFirstActivity: () => void;
 };
 
+type FeedbackNote = {
+  severity: "critical" | "suggestion";
+  text: string;
+};
+
+type GradeResult = {
+  score: number;
+  testsPassed: number;
+  testsTotal: number;
+  feedback: string;
+  notes: FeedbackNote[];
+};
+
 const fontSizes = [12, 14, 16, 18];
 
 export default function Workspace({ problem, started, onFirstActivity }: WorkspaceProps) {
@@ -34,6 +47,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
   const [submitting, setSubmitting] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const { showToast } = useToast();
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
@@ -110,20 +124,53 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
     }
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setSubmitting(true);
     setTimerRunning(false);
     setLines([{ type: "log", message: "Submitting for grading..." }]);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/grade-submission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          submittedCode: code,
+          language,
+          problem: {
+            title: problem.title,
+            description: problem.description,
+            constraints: problem.constraints,
+            examples: problem.examples,
+            starterCode: problem.starterCode,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setLines([{ type: "error", message: data.error ?? "Grading failed." }]);
+        showToast(data.error ?? "Grading failed. Try again.", "error");
+        return;
+      }
+
+      const result: GradeResult = await response.json();
+      setGradeResult(result);
+
       setLines([
-        { type: "success", message: "✓ All tests passed" },
-        { type: "success", message: "Submission graded: 100%" },
+        {
+          type: result.testsPassed === result.testsTotal ? "success" : "error",
+          message: `${result.testsPassed}/${result.testsTotal} tests passed`,
+        },
+        { type: "success", message: `Submission graded: ${result.score}%` },
       ]);
-      setSubmitting(false);
-      showToast("Submission graded: 100%", "success");
+      showToast(`Submission graded: ${result.score}%`, "success");
       setShowResults(true);
-    }, 1000);
+    } catch {
+      setLines([{ type: "error", message: "Failed to reach grading server." }]);
+      showToast("Failed to reach grading server.", "error");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -185,8 +232,9 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="text-sm px-3 py-1.5 bg-accent text-white rounded-button hover:brightness-110 active:brightness-90 disabled:opacity-50 transition cursor-pointer"
+                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-accent text-white rounded-button hover:brightness-110 active:brightness-90 disabled:opacity-50 transition cursor-pointer"
               >
+                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {submitting ? "Submitting..." : "Submit"}
               </button>
             </div>
@@ -195,21 +243,21 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
             lines={lines}
             stdin={stdin}
             onStdinChange={setStdin}
-            onRun={handleRun}
             running={running}
           />
           <div ref={consoleEndRef} />
         </div>
       </div>
 
-      {showResults && (
+      {showResults && gradeResult && (
         <ResultsModal
           challenge={problem.title}
-          score="100%"
-          testsPassed={3}
-          testsTotal={3}
+          score={`${gradeResult.score}%`}
+          testsPassed={gradeResult.testsPassed}
+          testsTotal={gradeResult.testsTotal}
           time="Just now"
-          feedback="Great job! Your fix correctly adjusts the loop condition to prevent the extra iteration. Consider adding a comment explaining why '<' is used instead of '<=' to help future readers understand the boundary condition at a glance."
+          feedback={gradeResult.feedback}
+          notes={gradeResult.notes}
           onClose={() => setShowResults(false)}
         />
       )}

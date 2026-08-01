@@ -25,7 +25,7 @@ export default function StartScreen({ problem, onStart }: StartScreenProps) {
           {problem.title}
         </h2>
         <p className="text-text-muted text-sm mb-6">
-          Ready when you are.
+          Let the game begin..
         </p>
 
         <button
@@ -33,7 +33,7 @@ export default function StartScreen({ problem, onStart }: StartScreenProps) {
           className="inline-flex items-center gap-2 bg-accent text-white px-5 py-2.5 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
         >
           <Play className="w-4 h-4" />
-          Start Challenge
+          Game
         </button>
       </div>
     </div>
