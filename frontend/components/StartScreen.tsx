@@ -1,10 +1,11 @@
-"use client";
-
-import { useState } from "react";
 import { Play } from "lucide-react";
-import type { Problem, Difficulty } from "@/data/problems";
+import type { Problem } from "@/data/problems";
 
-const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
+const difficultyColors = {
+  Easy: "bg-highlight/15 text-highlight",
+  Medium: "bg-accent/15 text-accent",
+  Hard: "bg-red-500/15 text-red-400",
+};
 
 type StartScreenProps = {
   problem: Problem;
@@ -12,33 +13,20 @@ type StartScreenProps = {
 };
 
 export default function StartScreen({ problem, onStart }: StartScreenProps) {
-  const [selected, setSelected] = useState<Difficulty>(problem.difficulty);
-
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full max-w-sm px-4">
       <div className="bg-secondary-bg border border-border-subtle rounded-card shadow-lg p-6 text-center">
+        <span
+          className={`inline-block text-xs font-medium px-3 py-1 rounded-badge mb-3 ${difficultyColors[problem.difficulty]}`}
+        >
+          {problem.difficulty}
+        </span>
         <h2 className="text-lg font-bold text-text-primary mb-1">
-          Ready to begin?
+          {problem.title}
         </h2>
-        <p className="text-text-muted text-sm mb-5">
-          Choose a difficulty and start the challenge.
+        <p className="text-text-muted text-sm mb-6">
+          Ready when you are.
         </p>
-
-        <div className="flex justify-center gap-2 mb-6">
-          {difficulties.map((level) => (
-            <button
-              key={level}
-              onClick={() => setSelected(level)}
-              className={`text-sm px-3 py-1.5 rounded-badge border transition cursor-pointer ${
-                selected === level
-                  ? "bg-accent text-white border-accent"
-                  : "border-border-subtle text-text-muted hover:text-text-secondary"
-              }`}
-            >
-              {level}
-            </button>
-          ))}
-        </div>
 
         <button
           onClick={onStart}

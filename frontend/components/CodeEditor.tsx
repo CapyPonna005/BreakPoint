@@ -14,6 +14,9 @@ const languageMap: Record<string, string> = {
   JavaScript: "javascript",
   TypeScript: "typescript",
   Python: "python",
+  Java: "java",
+  "C++": "cpp",
+  "C#": "csharp",
 };
 
 const handleBeforeMount: BeforeMount = (monaco) => {

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Code2, FileCode, LogOut, X } from "lucide-react";
+import { LayoutDashboard, Code2, FileCode, LogOut, X, Sparkles } from "lucide-react";
 import Tooltip from "@/components/Tooltip";
 
 const links = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Practice", href: "/dashboard/practice", icon: Code2 },
+  { label: "Create", href: "/dashboard/create", icon: Sparkles },
   { label: "Snippets", href: "/dashboard/snippets", icon: FileCode },
 ];
 

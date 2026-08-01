@@ -1,6 +1,6 @@
 "use client";
 
-const languages = ["JavaScript", "TypeScript", "Python"];
+const languages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#"];
 
 type LanguageSelectorProps = {
   language: string;

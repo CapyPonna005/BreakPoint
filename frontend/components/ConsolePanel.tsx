@@ -11,20 +11,48 @@ const lineColors: Record<ConsoleLine["type"], string> = {
 
 type ConsolePanelProps = {
   lines: ConsoleLine[];
+  stdin: string;
+  onStdinChange: (value: string) => void;
+  onRun: () => void;
+  running: boolean;
 };
 
-export default function ConsolePanel({ lines }: ConsolePanelProps) {
+export default function ConsolePanel({
+  lines,
+  stdin,
+  onStdinChange,
+  onRun,
+  running,
+}: ConsolePanelProps) {
   return (
-    <div className="bg-surface border border-border-subtle rounded-input p-4 font-mono text-sm h-40 overflow-y-auto">
-      {lines.length === 0 ? (
-        <p className="text-text-muted">Click "Run" to see output.</p>
-      ) : (
-        lines.map((line, index) => (
-          <p key={index} className={lineColors[line.type]}>
-            {line.message}
+    <div className="bg-surface border border-border-subtle rounded-input font-mono text-sm overflow-hidden">
+      <div className="p-4 h-32 overflow-y-auto whitespace-pre-wrap">
+        {lines.length === 0 ? (
+          <p className="text-text-muted">
+            Type any input below (if your program needs it), then press Run.
           </p>
-        ))
-      )}
+        ) : (
+          lines.map((line, index) => (
+            <p key={index} className={lineColors[line.type]}>
+              {line.message}
+            </p>
+          ))
+        )}
+      </div>
+      <div className="flex items-center gap-2 border-t border-border-subtle px-4 py-2">
+        <span className="text-accent">&gt;</span>
+        <input
+          type="text"
+          value={stdin}
+          onChange={(e) => onStdinChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !running) onRun();
+          }}
+          disabled={running}
+          placeholder="Input for your program (optional)"
+          className="flex-1 bg-transparent text-text-primary placeholder:text-text-muted outline-none disabled:opacity-50"
+        />
+      </div>
     </div>
   );
 }

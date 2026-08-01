@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Loader2 } from "lucide-react";
 import LanguageSelector from "@/components/LanguageSelector";
 import CodeEditor from "@/components/CodeEditor";
 import ConsolePanel from "@/components/ConsolePanel";
@@ -9,6 +9,7 @@ import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
 import { useToast } from "@/context/ToastContext";
 import type { Problem } from "@/data/problems";
+import { starterTemplates } from "@/data/starterTemplates";
 
 type ConsoleLine = {
   type: "log" | "error" | "success";
@@ -28,6 +29,8 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
   const [code, setCode] = useState(problem.starterCode);
   const [fontSize, setFontSize] = useState(14);
   const [lines, setLines] = useState<ConsoleLine[]>([]);
+  const [stdin, setStdin] = useState("");
+  const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -54,13 +57,57 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
     showToast("Code reset to starter template", "success");
   }
 
-  function handleRun() {
+  function handleLanguageChange(newLanguage: string) {
+    const currentTemplateForOldLanguage = starterTemplates[language];
+    const isUnedited = code === problem.starterCode || code === currentTemplateForOldLanguage;
+
+    setLanguage(newLanguage);
+
+    if (isUnedited) {
+      setCode(starterTemplates[newLanguage] ?? problem.starterCode);
+    }
+  }
+
+  async function handleRun() {
     handleFirstActivity();
-    setLines([
-      { type: "log", message: "Running tests..." },
-      { type: "success", message: "✓ Test 1 passed" },
-      { type: "error", message: "✗ Test 2 failed: expected 5, got 6" },
-    ]);
+    setRunning(true);
+    setLines([{ type: "log", message: "Running..." }]);
+
+    try {
+      const response = await fetch("/api/execute-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, language, stdin }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setLines([{ type: "error", message: data.error ?? "Execution failed." }]);
+        return;
+      }
+
+      const result = await response.json();
+      const output: ConsoleLine[] = [];
+
+      if (result.stdout) {
+        output.push({ type: "success", message: result.stdout.trimEnd() });
+      }
+      if (result.stderr) {
+        output.push({ type: "error", message: result.stderr.trimEnd() });
+      }
+      if (result.error) {
+        output.push({ type: "error", message: result.error });
+      }
+      if (output.length === 0) {
+        output.push({ type: "log", message: "(no output)" });
+      }
+
+      setLines(output);
+    } catch {
+      setLines([{ type: "error", message: "Failed to reach execution server." }]);
+    } finally {
+      setRunning(false);
+    }
   }
 
   function handleSubmit() {
@@ -98,7 +145,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
         </div>
 
         <div className="flex items-center justify-between flex-wrap gap-2 border-y border-border-subtle py-2">
-          <LanguageSelector language={language} onChange={setLanguage} />
+          <LanguageSelector language={language} onChange={handleLanguageChange} />
           <div className="flex items-center gap-3">
             <select
               value={fontSize}
@@ -129,9 +176,11 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
             <div className="flex gap-2">
               <button
                 onClick={handleRun}
-                className="text-sm px-3 py-1.5 bg-secondary-bg text-text-primary rounded-button hover:brightness-125 transition cursor-pointer"
+                disabled={running}
+                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-secondary-bg text-text-primary rounded-button hover:brightness-125 disabled:opacity-50 transition cursor-pointer"
               >
-                Run
+                {running && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {running ? "Running..." : "Run"}
               </button>
               <button
                 onClick={handleSubmit}
@@ -142,7 +191,13 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
               </button>
             </div>
           </div>
-          <ConsolePanel lines={lines} />
+          <ConsolePanel
+            lines={lines}
+            stdin={stdin}
+            onStdinChange={setStdin}
+            onRun={handleRun}
+            running={running}
+          />
           <div ref={consoleEndRef} />
         </div>
       </div>

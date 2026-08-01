@@ -36,3 +36,7 @@ export const problems: Problem[] = [
 export function getProblemById(id: string): Problem | undefined {
   return problems.find((p) => p.id === id);
 }
+
+export function addGeneratedProblem(problem: Problem) {
+  problems.push(problem);
+}
