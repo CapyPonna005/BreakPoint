@@ -25,7 +25,17 @@ export async function middleware(request: NextRequest) {
 
   // Refreshes the session if expired — required for Server Components,
   // which can't set cookies themselves. Do not remove this call.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Route protection: anything under /dashboard requires a logged-in user.
+  const isProtectedRoute = request.nextUrl.pathname.startsWith("/dashboard");
+
+  if (isProtectedRoute && !user) {
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
 
   return supabaseResponse;
 }

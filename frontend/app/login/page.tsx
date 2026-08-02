@@ -1,25 +1,45 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, Loader2 } from "lucide-react";
 import FloatingField from "@/components/FloatingField";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field: keyof typeof formData) => (value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    console.log("Login attempt:", formData);
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh(); // ensures Server Components (e.g. Sidebar auth state) pick up the new session
   }
 
   return (
@@ -83,9 +103,11 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="mt-1 bg-accent text-white rounded-button py-2 text-sm font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+            disabled={loading}
+            className="mt-1 flex items-center justify-center gap-2 bg-accent text-white rounded-button py-2 text-sm font-medium hover:brightness-110 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
           >
-            Log In
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? "Logging in..." : "Log In"}
           </button>
 
           <p className="text-sm text-text-muted text-center">

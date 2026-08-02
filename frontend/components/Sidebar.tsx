@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Code2, FileCode, LogOut, X, Sparkles } from "lucide-react";
 import Tooltip from "@/components/Tooltip";
+import { createClient } from "@/lib/supabase/client";
 
 const links = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -19,6 +20,15 @@ type SidebarProps = {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    onClose();
+    router.push("/login");
+    router.refresh(); // clears any Server Component state that read the old session
+  }
 
   return (
     <>
@@ -74,13 +84,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </nav>
         </div>
 
-        <Link
-          href="/login"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-button text-sm font-medium text-text-muted hover:bg-red-500/10 hover:text-red-400 transition-colors"
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-button text-sm font-medium text-text-muted hover:bg-red-500/10 hover:text-red-400 transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           Logout
-        </Link>
+        </button>
       </aside>
     </>
   );
