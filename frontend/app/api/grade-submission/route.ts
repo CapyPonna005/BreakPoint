@@ -202,7 +202,7 @@ ${submittedCode}
         submitted_code: submittedCode,
         language,
         score: parsed.score,
-        tests_passed: parsed.testsPassed,
+        test_passed: parsed.testsPassed,
         tests_total: parsed.testsTotal,
         feedback: parsed.feedback,
         notes: parsed.notes,

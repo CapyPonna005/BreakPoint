@@ -12,9 +12,10 @@ type XpPopupProps = {
 };
 
 // Two-stage animation when leveling up: first fill the OLD level's bar to
-// full, briefly hold on a "Level Up!" moment, then reset to 0 and fill the
-// NEW level's bar up to the leftover XP. Non-level-up case just animates
-// straight from beforeXp to afterXp on the same bar.
+// full, hold on a "Level Up!" moment, then reset to 0 and fill the NEW
+// level's bar up to the leftover XP. Non-level-up case animates straight
+// from beforeXp to afterXp on the same bar. Timings are slower/more
+// deliberate than the first pass, per user feedback that v1 felt too fast.
 export default function XpPopup({ award, onClose }: XpPopupProps) {
   const { earned, beforeXp, beforeLevel, afterXp, afterLevel, leveledUp } = award;
 
@@ -24,27 +25,23 @@ export default function XpPopup({ award, onClose }: XpPopupProps) {
 
   useEffect(() => {
     if (!leveledUp) {
-      // Simple case: animate the single bar from before -> after on mount.
-      const t = setTimeout(() => setDisplayXp(afterXp), 100);
+      const t = setTimeout(() => setDisplayXp(afterXp), 500);
       return () => clearTimeout(t);
     }
 
-    // Level-up case: fill old bar to full first.
     const fillOldBar = setTimeout(() => {
       setDisplayXp(xpForNextLevel(beforeLevel));
-    }, 100);
+    }, 500);
 
-    // Then show the "Level Up!" badge and swap to the new level's empty bar.
     const revealLevelUp = setTimeout(() => {
       setShowLevelUpBadge(true);
       setDisplayLevel(afterLevel);
       setDisplayXp(0);
-    }, 900);
+    }, 2200);
 
-    // Then animate the new bar filling to the leftover XP.
     const fillNewBar = setTimeout(() => {
       setDisplayXp(afterXp);
-    }, 1100);
+    }, 2800);
 
     return () => {
       clearTimeout(fillOldBar);
@@ -58,8 +55,9 @@ export default function XpPopup({ award, onClose }: XpPopupProps) {
   return (
     <div className="fixed inset-0 z-50 bg-primary-bg/80 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="p-[1px] rounded-card bg-gradient-to-br from-accent/40 to-highlight/40">
-          <div className="rounded-card bg-gradient-to-br from-secondary-bg to-secondary-bg/70 p-6 text-center">
+        <div className="relative p-[1px] rounded-card bg-gradient-to-br from-accent/40 to-highlight/40 overflow-hidden">
+          <div className="shine-sweep rounded-card" />
+          <div className="relative rounded-card bg-gradient-to-br from-secondary-bg to-secondary-bg/70 p-6 text-center">
             {showLevelUpBadge ? (
               <div className="flex flex-col items-center gap-1 mb-4">
                 <TrendingUp className="w-8 h-8 text-highlight" />

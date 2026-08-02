@@ -27,7 +27,7 @@ export default function RecentActivity({ activity }: RecentActivityProps) {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-border-subtle">
+          <div className="flex flex-col divide-y divide-border-subtle max-h-80 overflow-y-auto pr-1 hover-scrollbar">
             {activity.map((item, index) => {
               const ModeIcon = item.mode === "Bug-Fix" ? Bug : PenLine;
               const passed = item.result === "Passed";

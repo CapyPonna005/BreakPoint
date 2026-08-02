@@ -71,17 +71,24 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: profile }, { data: submissions }] = await Promise.all([
+  const [{ data: profile, error: profileError }, { data: submissions, error: submissionsError }] = await Promise.all([
     supabase.from("profiles").select("bio, level, xp, streak").eq("id", user?.id).single(),
     supabase
       .from("submissions")
-      .select("id, score, tests_passed, tests_total, created_at, problems(title, mode)")
+      .select("id, score, tests_passed, tests_total, submitted_at, problems(title, mode)")
       .eq("user_id", user?.id)
-      .order("created_at", { ascending: false }),
+      .order("submitted_at", { ascending: false }),
   ]);
 
+  if (profileError) {
+    console.error("Dashboard: failed to load profile:", profileError);
+  }
+  if (submissionsError) {
+    console.error("Dashboard: failed to load submissions:", submissionsError);
+  }
+
   const allSubmissions = submissions ?? [];
-  const dateKeys = allSubmissions.map((s) => toDateKey(s.created_at));
+  const dateKeys = allSubmissions.map((s) => toDateKey(s.submitted_at));
 
   const totalSolved = allSubmissions.length;
   const currentStreak = computeStreak(dateKeys);
@@ -92,11 +99,11 @@ export default async function DashboardPage() {
 
   const weeklyData = computeWeeklyData(dateKeys);
 
-  const recentActivity = allSubmissions.slice(0, 5).map((s) => ({
+  const recentActivity = allSubmissions.slice(0, 20).map((s) => ({
     snippet: (s.problems as unknown as { title: string; mode: string } | null)?.title ?? "Untitled Challenge",
     mode: (s.problems as unknown as { title: string; mode: string } | null)?.mode ?? "Bug-Fix",
     result: s.tests_passed === s.tests_total ? "Passed" : "Failed",
-    time: timeAgo(s.created_at),
+    time: timeAgo(s.submitted_at),
   }));
 
   const stats = [

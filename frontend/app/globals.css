@@ -65,3 +65,55 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.shine-sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shine-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 35%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  animation: shine-sweep 2.2s ease-in-out infinite;
+}
+
+/* Scrollbar stays invisible until the user actually hovers the container —
+   avoids a permanently-visible scrollbar on cards where content usually
+   fits, while still being reachable/scrollable when it doesn't. */
+.hover-scrollbar {
+  scrollbar-width: none; /* Firefox: fully hidden by default */
+}
+.hover-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Chrome/Safari/Edge: keep the track present but thumb invisible below */
+}
+.hover-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+.hover-scrollbar:hover {
+  scrollbar-width: thin; /* Firefox: reveal on hover */
+}
+.hover-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+}
