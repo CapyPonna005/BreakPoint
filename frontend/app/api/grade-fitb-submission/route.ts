@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { createClient } from "@/lib/supabase/server";
-import { xpForNextLevel } from "@/lib/xp";
+import { awardXp, type XpAwardResult } from "@/lib/awardXp";
 import type { ProblemRow } from "@/data/problems";
 
 type GradeFitbRequestBody = {
@@ -24,10 +24,6 @@ type FeedbackNote = {
   severity: "critical" | "suggestion";
   text: string;
 };
-
-function xpForScore(score: number): number {
-  return Math.round(score / 10);
-}
 
 export async function POST(request: NextRequest) {
   const identifier = request.headers.get("x-forwarded-for") ?? "anonymous";
@@ -102,12 +98,12 @@ export async function POST(request: NextRequest) {
       ? "All blanks filled in correctly. Nicely done."
       : `${testsPassed} of ${testsTotal} blanks correct.`;
 
-  const result = { score, testsPassed, testsTotal, feedback, notes };
-
   // Persist + award XP, mirroring grade-submission/route.ts's pattern.
   // submitted_code stores the selections as a JSON string since there's no
   // free-form code submission in this mode — reuses the existing column
   // rather than adding a new one.
+  let xpAward: XpAwardResult | null = null;
+
   try {
     const {
       data: { user },
@@ -130,37 +126,7 @@ export async function POST(request: NextRequest) {
         console.error("Failed to save FITB submission:", insertError);
       }
 
-      try {
-        const { data: profile, error: profileFetchError } = await supabase
-          .from("profiles")
-          .select("xp, level")
-          .eq("id", user.id)
-          .single();
-
-        if (profileFetchError || !profile) {
-          console.error("Failed to fetch profile for XP award:", profileFetchError);
-        } else {
-          const earned = xpForScore(score);
-          let xp = (profile.xp ?? 0) + earned;
-          let level = profile.level ?? 1;
-
-          while (xp >= xpForNextLevel(level)) {
-            xp -= xpForNextLevel(level);
-            level += 1;
-          }
-
-          const { error: profileUpdateError } = await supabase
-            .from("profiles")
-            .update({ xp, level })
-            .eq("id", user.id);
-
-          if (profileUpdateError) {
-            console.error("Failed to update XP/level:", profileUpdateError);
-          }
-        }
-      } catch (err) {
-        console.error("Unexpected error awarding XP:", err);
-      }
+      xpAward = await awardXp(user.id, score);
     } else {
       console.error("No authenticated user — FITB submission graded but not saved.");
     }
@@ -168,5 +134,5 @@ export async function POST(request: NextRequest) {
     console.error("Unexpected error saving FITB submission:", err);
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json({ score, testsPassed, testsTotal, feedback, notes, xpAward });
 }

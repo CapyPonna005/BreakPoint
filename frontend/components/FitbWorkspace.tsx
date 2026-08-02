@@ -4,8 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
+import XpPopup from "@/components/XpPopup";
 import { useToast } from "@/context/ToastContext";
 import type { Problem, FitbBlank } from "@/data/problems";
+import type { XpAwardResult } from "@/lib/awardXp";
 
 type FitbWorkspaceProps = {
   problem: Problem;
@@ -24,6 +26,7 @@ type GradeResult = {
   testsTotal: number;
   feedback: string;
   notes: FeedbackNote[];
+  xpAward: XpAwardResult | null;
 };
 
 // Splits starterCode on {{BLANK_n}} markers into alternating text/blank
@@ -57,6 +60,7 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
   const [submitting, setSubmitting] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showXpPopup, setShowXpPopup] = useState(false);
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const [error, setError] = useState("");
   const { showToast } = useToast();
@@ -118,6 +122,13 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
       showToast("Failed to reach grading server.", "error");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function handleResultsClose() {
+    setShowResults(false);
+    if (gradeResult?.xpAward) {
+      setShowXpPopup(true);
     }
   }
 
@@ -193,8 +204,12 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
           time="Just now"
           feedback={gradeResult.feedback}
           notes={gradeResult.notes}
-          onClose={() => setShowResults(false)}
+          onClose={handleResultsClose}
         />
+      )}
+
+      {showXpPopup && gradeResult?.xpAward && (
+        <XpPopup award={gradeResult.xpAward} onClose={() => setShowXpPopup(false)} />
       )}
     </section>
   );

@@ -7,9 +7,11 @@ import CodeEditor from "@/components/CodeEditor";
 import ConsolePanel from "@/components/ConsolePanel";
 import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
+import XpPopup from "@/components/XpPopup";
 import { useToast } from "@/context/ToastContext";
 import type { Problem } from "@/data/problems";
 import { starterTemplates } from "@/data/starterTemplates";
+import type { XpAwardResult } from "@/lib/awardXp";
 
 type ConsoleLine = {
   type: "log" | "error" | "success";
@@ -33,6 +35,7 @@ type GradeResult = {
   testsTotal: number;
   feedback: string;
   notes: FeedbackNote[];
+  xpAward: XpAwardResult | null;
 };
 
 const fontSizes = [12, 14, 16, 18];
@@ -47,6 +50,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
   const [submitting, setSubmitting] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showXpPopup, setShowXpPopup] = useState(false);
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const { showToast } = useToast();
   const consoleEndRef = useRef<HTMLDivElement>(null);
@@ -174,6 +178,13 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
     }
   }
 
+  function handleResultsClose() {
+    setShowResults(false);
+    if (gradeResult?.xpAward) {
+      setShowXpPopup(true);
+    }
+  }
+
   return (
     <section className="relative w-full md:w-1/2 bg-surface p-4 md:p-6 flex flex-col gap-4">
       <div
@@ -259,8 +270,12 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
           time="Just now"
           feedback={gradeResult.feedback}
           notes={gradeResult.notes}
-          onClose={() => setShowResults(false)}
+          onClose={handleResultsClose}
         />
+      )}
+
+      {showXpPopup && gradeResult?.xpAward && (
+        <XpPopup award={gradeResult.xpAward} onClose={() => setShowXpPopup(false)} />
       )}
     </section>
   );
