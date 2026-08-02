@@ -186,7 +186,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
   }
 
   return (
-    <section className="relative w-full md:w-1/2 bg-surface p-4 md:p-6 flex flex-col gap-4">
+    <section className="relative w-full md:w-[65%] bg-surface p-4 md:p-6 flex flex-col gap-4">
       <div
         className={`flex flex-col gap-4 transition-all duration-300 ${
           started ? "" : "blur-[2px] select-none pointer-events-none"

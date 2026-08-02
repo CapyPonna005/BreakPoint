@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/components/Navbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 import ToastContainer from "@/components/ToastContainer";
@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <ToastProvider>
-            <Navbar />
+            <ConditionalNavbar />
             {children}
             <ToastContainer />
           </ToastProvider>

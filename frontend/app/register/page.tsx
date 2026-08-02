@@ -53,6 +53,16 @@ export default function RegisterPage() {
       return;
     }
 
+    // Supabase deliberately obscures "this email is already registered"
+    // behind a fake-success response (same anti-enumeration reasoning as
+    // Forgot Password) — no `error` is returned, but the returned user's
+    // `identities` array comes back empty. That's the only reliable signal.
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setError("An account with this email already exists. Try logging in instead.");
+      setLoading(false);
+      return;
+    }
+
     // If email confirmation is enabled in Supabase project settings,
     // signUp succeeds but returns no session until the user clicks the
     // confirmation link — show a "check your email" state instead of

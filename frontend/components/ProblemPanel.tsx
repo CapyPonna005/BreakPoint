@@ -14,7 +14,7 @@ type ProblemPanelProps = {
 export default function ProblemPanel({ problem, started }: ProblemPanelProps) {
   return (
     <section
-      className={`w-full md:w-1/2 bg-surface p-4 md:p-6 border-b md:border-b-0 md:border-r border-border-subtle transition-all duration-300 overflow-y-auto ${
+      className={`w-full md:w-[35%] bg-surface p-4 md:p-6 border-b md:border-b-0 md:border-r border-border-subtle transition-all duration-300 overflow-y-auto ${
         started ? "" : "blur-[2px] select-none pointer-events-none"
       }`}
     >

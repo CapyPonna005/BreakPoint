@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RotateCcw } from "lucide-react";
 import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
 import XpPopup from "@/components/XpPopup";
@@ -92,6 +92,11 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
     setSelections((prev) => ({ ...prev, [blankId]: value }));
   }
 
+  function handleReset() {
+    setSelections({});
+    showToast("Selections reset", "success");
+  }
+
   const allBlanksFilled = blanks.length > 0 && blanks.every((b) => selections[b.id]);
 
   async function handleSubmit() {
@@ -133,7 +138,7 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
   }
 
   return (
-    <section className="relative w-full md:w-1/2 bg-surface p-4 md:p-6 flex flex-col gap-4">
+    <section className="relative w-full md:w-[65%] bg-surface p-4 md:p-6 flex flex-col gap-4">
       <div
         className={`flex flex-col gap-4 transition-all duration-300 ${
           started ? "" : "blur-[2px] select-none pointer-events-none"
@@ -141,7 +146,16 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
       >
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h2 className="text-lg font-semibold text-text-primary">Fill in the Blanks</h2>
-          <Timer running={timerRunning} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </button>
+            <Timer running={timerRunning} />
+          </div>
         </div>
 
         <div className="border-y border-border-subtle py-2">
