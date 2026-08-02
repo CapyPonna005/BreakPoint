@@ -4,17 +4,21 @@
 // the original problem (correctness + style + explanation), mirroring the
 // same architecture as generate-challenge/route.ts and
 // generate-challenge-from-image/route.ts (rate limiting, Gemini client,
-// forced JSON output).
+// forced JSON output). After grading succeeds, also persists the result to
+// the submissions table so Recent Activity / dashboard stats / history can
+// read real data instead of nothing, and awards XP/levels to the profile.
 
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { createClient } from "@/lib/supabase/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Keep this in sync with data/problems.ts's Problem type.
 // Only the fields the grader actually needs are required here.
 interface GradingProblem {
+  id: string; // needed as the submissions table's problem_id foreign key
   title: string;
   description: string;
   constraints?: string[];
@@ -28,11 +32,6 @@ interface GradeSubmissionRequestBody {
   problem: GradingProblem;
 }
 
-// Shape returned to the client. Matches the existing ScoreCard/AIFeedbackCard
-// prop contracts exactly (challenge/submittedAt are filled in client-side,
-// not by the model):
-//   ScoreCard: { challenge, score, testsPassed, testsTotal, submittedAt }
-//   AIFeedbackCard: { feedback }
 type NoteSeverity = "critical" | "suggestion";
 
 interface GradeNote {
@@ -40,6 +39,11 @@ interface GradeNote {
   text: string;
 }
 
+// Shape returned to the client. Matches the existing ScoreCard/AIFeedbackCard
+// prop contracts exactly (challenge/submittedAt are filled in client-side,
+// not by the model):
+//   ScoreCard: { challenge, score, testsPassed, testsTotal, submittedAt }
+//   AIFeedbackCard: { feedback, notes }
 interface GradeResult {
   score: number; // 0-100
   testsPassed: number; // how many of the provided examples the fix actually satisfies
@@ -87,6 +91,20 @@ Other rules:
 - If no examples were provided, set testsTotal to 1 and testsPassed to 1 or 0 based on your own correctness judgment.
 - Do not wrap the JSON in markdown code fences. Return raw JSON only.`;
 
+// --- XP / leveling ---
+// Kept in sync with the placeholder formula in components/ProfileSummary.tsx.
+// If that formula ever changes, update both places.
+function xpForNextLevel(level: number): number {
+  return level * 250;
+}
+
+// Simple, transparent: every graded submission awards XP scaled by score.
+// No passing threshold — attempting and improving is reinforced, not just
+// "winning" (matches the AI grader's partial-credit style).
+function xpForScore(score: number): number {
+  return Math.round(score / 10);
+}
+
 export async function POST(request: NextRequest) {
   const identifier = request.headers.get("x-forwarded-for") ?? "anonymous";
   const rateLimitResult = checkRateLimit(identifier);
@@ -109,8 +127,11 @@ export async function POST(request: NextRequest) {
   if (!submittedCode || submittedCode.trim().length === 0) {
     return NextResponse.json({ error: "submittedCode is required" }, { status: 400 });
   }
-  if (!problem || !problem.title || !problem.starterCode) {
-    return NextResponse.json({ error: "problem (with title + starterCode) is required" }, { status: 400 });
+  if (!problem || !problem.id || !problem.title || !problem.starterCode) {
+    return NextResponse.json(
+      { error: "problem (with id, title, and starterCode) is required" },
+      { status: 400 }
+    );
   }
 
   const userPrompt = `Language: ${language}
@@ -134,6 +155,8 @@ Student's submitted code:
 ${submittedCode}
 \`\`\``;
 
+  let parsed: GradeResult;
+
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-3.6-flash",
@@ -146,7 +169,7 @@ ${submittedCode}
     ]);
 
     const raw = result.response.text();
-    const parsed: GradeResult = JSON.parse(raw);
+    parsed = JSON.parse(raw);
 
     // Defensive clamping in case the model drifts outside expected ranges.
     parsed.score = Math.max(0, Math.min(100, Math.round(parsed.score)));
@@ -163,8 +186,6 @@ ${submittedCode}
             text: n.text,
           }))
       : [];
-
-    return NextResponse.json(parsed);
   } catch (err) {
     console.error("grade-submission error:", err);
     return NextResponse.json(
@@ -172,4 +193,75 @@ ${submittedCode}
       { status: 500 }
     );
   }
+
+  // Persist the result. Grading already succeeded at this point, so a save
+  // failure shouldn't block the user from seeing their score — log it and
+  // still return the grade. The submission just won't show up in history.
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { error: insertError } = await supabase.from("submissions").insert({
+        user_id: user.id,
+        problem_id: problem.id,
+        submitted_code: submittedCode,
+        language,
+        score: parsed.score,
+        tests_passed: parsed.testsPassed,
+        tests_total: parsed.testsTotal,
+        feedback: parsed.feedback,
+        notes: parsed.notes,
+      });
+
+      if (insertError) {
+        console.error("Failed to save submission:", insertError);
+      }
+
+      // Award XP / handle level-ups. Independent of the submission insert
+      // above — a history-save hiccup shouldn't cost the user their XP.
+      try {
+        const { data: profile, error: profileFetchError } = await supabase
+          .from("profiles")
+          .select("xp, level")
+          .eq("id", user.id)
+          .single();
+
+        if (profileFetchError || !profile) {
+          console.error("Failed to fetch profile for XP award:", profileFetchError);
+        } else {
+          const earned = xpForScore(parsed.score);
+          let xp = (profile.xp ?? 0) + earned;
+          let level = profile.level ?? 1;
+
+          // Loop (not a single if) in case a big XP award crosses more than
+          // one level threshold at once. Leftover XP carries over rather
+          // than being capped/lost.
+          while (xp >= xpForNextLevel(level)) {
+            xp -= xpForNextLevel(level);
+            level += 1;
+          }
+
+          const { error: profileUpdateError } = await supabase
+            .from("profiles")
+            .update({ xp, level })
+            .eq("id", user.id);
+
+          if (profileUpdateError) {
+            console.error("Failed to update XP/level:", profileUpdateError);
+          }
+        }
+      } catch (err) {
+        console.error("Unexpected error awarding XP:", err);
+      }
+    } else {
+      console.error("No authenticated user — submission graded but not saved.");
+    }
+  } catch (err) {
+    console.error("Unexpected error saving submission:", err);
+  }
+
+  return NextResponse.json(parsed);
 }

@@ -1,12 +1,16 @@
 import { Flame } from "lucide-react";
 import ProgressBar from "@/components/ProgressBar";
+import { xpForNextLevel } from "@/lib/xp";
 
-export default function ProfileSummary() {
-  const xp = 650;
-  const xpToNextLevel = 1000;
-  const level = 4;
-  const streak = 4;
-  const bio = "Debugging my way through CS, one breakpoint at a time.";
+type ProfileSummaryProps = {
+  bio: string;
+  level: number;
+  xp: number;
+  streak: number;
+};
+
+export default function ProfileSummary({ bio, level, xp, streak }: ProfileSummaryProps) {
+  const xpToNextLevel = xpForNextLevel(level);
 
   return (
     <div className="p-[1px] rounded-card bg-gradient-to-br from-white/15 to-transparent">
@@ -14,25 +18,22 @@ export default function ProfileSummary() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-white font-bold text-lg">
-              P
+              L{level}
             </div>
             <div>
-              <p className="font-semibold text-text-primary">Ponna</p>
-              <p className="text-sm text-text-muted">
-                BS Computer Science · Level {level}
-              </p>
+              <p className="text-sm text-text-muted">Level {level}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 bg-primary-bg px-3 py-1.5 rounded-badge">
             <Flame className="w-4 h-4 text-highlight" />
             <span className="text-sm font-medium text-text-primary">
-              {streak}-day streak
+              {streak === 1 ? "1-day streak" : `${streak}-day streak`}
             </span>
           </div>
         </div>
 
-        <p className="text-sm text-text-secondary italic mb-4">"{bio}"</p>
+        <p className="text-sm text-text-secondary italic mb-4">&quot;{bio}&quot;</p>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">

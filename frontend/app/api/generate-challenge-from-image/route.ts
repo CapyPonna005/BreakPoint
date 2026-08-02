@@ -3,8 +3,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 type Difficulty = "Easy" | "Medium" | "Hard";
+type Mode = "Bug-Fix" | "Fill-in-the-Blank";
 
-const SYSTEM_PROMPT = `You are BreakPoint's challenge generator. BreakPoint is a coding practice platform where users learn by debugging real code, not writing from scratch.
+const BUGFIX_SYSTEM_PROMPT = `You are BreakPoint's challenge generator. BreakPoint is a coding practice platform where users learn by debugging real code, not writing from scratch.
 
 You will be given a screenshot containing code. First, carefully read the code from the image. Then:
 1. Introduce exactly ONE realistic, findable bug into the code (an off-by-one error, a wrong comparison operator, a swapped variable, a missing edge case, etc.) — never something contrived or impossible to reasonably find.
@@ -29,6 +30,36 @@ Otherwise, respond with ONLY valid JSON matching this exact shape, no other text
   "starterCode": string
 }`;
 
+const FITB_SYSTEM_PROMPT = `You are BreakPoint's challenge generator. BreakPoint is a coding practice platform. In this mode ("Fill-in-the-Blank"), users learn by selecting the correct piece of code from multiple choices at specific blanked-out spots, rather than writing or fixing free-form code.
+
+You will be given a screenshot containing code. First, carefully read the code from the image. Then:
+1. Choose 2-4 MEANINGFUL blanks in the code — things that test real understanding (a loop boundary condition, a comparison operator, a key variable name, a return value, an increment/decrement, a conditional). Do NOT blank out trivial syntax (semicolons, brackets, keywords like "function" or "if" alone).
+2. For each blank, replace the chosen token(s) in the code with a marker in the exact form {{BLANK_1}}, {{BLANK_2}}, etc. (sequential, starting at 1).
+3. For each blank, provide the single correct answer (exactly what was removed, as a short code fragment — e.g. "<", "i++", "n - 1") and 2-3 plausible but WRONG distractor options of similar length/style (things a learner might mistakenly pick — off-by-one variants, swapped operators, etc.). Never make distractors absurd or obviously wrong.
+4. Write a "description" explaining what the code is supposed to do (correct, fully-working behavior — there is no bug in this mode, only blanks to fill correctly).
+5. Write 2-3 sensible "constraints".
+6. Write 1-2 "examples" showing input/expected-output pairs for the CORRECT, fully-filled-in code.
+7. Choose a short, clear "title" (e.g. "Complete the Loop Boundary").
+8. Set "tags" — 1-3 short lowercase topic words.
+9. Return the blanked-out version of the code (with {{BLANK_n}} markers in place) as "starterCode".
+
+If the image does not contain readable code, respond with:
+{ "error": "No readable code found in the image." }
+
+Otherwise, respond with ONLY valid JSON matching this exact shape, no other text:
+{
+  "title": string,
+  "blurb": string (one short sentence teaser),
+  "description": string,
+  "tags": string[],
+  "constraints": string[],
+  "examples": [{ "input": string, "output": string }],
+  "starterCode": string (with {{BLANK_n}} markers),
+  "blanks": [
+    { "id": string (e.g. "1", "2"), "correctAnswer": string, "options": string[] (correctAnswer plus 2-3 distractors, in any order) }
+  ]
+}`;
+
 // Server-side upload limits. The frontend's <input accept="image/*"> and
 // drag-drop filter only check file.type client-side, which is trivially
 // spoofable and doesn't stop a huge file — these are the real gate.
@@ -49,6 +80,7 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const image = formData.get("image") as File | null;
   const difficulty = formData.get("difficulty") as Difficulty | null;
+  const mode = formData.get("mode") as Mode | null;
 
   if (!image) {
     return NextResponse.json(
@@ -60,6 +92,13 @@ export async function POST(request: NextRequest) {
   if (!difficulty) {
     return NextResponse.json(
       { error: "No difficulty provided." },
+      { status: 400 }
+    );
+  }
+
+  if (mode !== "Bug-Fix" && mode !== "Fill-in-the-Blank") {
+    return NextResponse.json(
+      { error: "Invalid or missing mode." },
       { status: 400 }
     );
   }
@@ -78,6 +117,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const systemPrompt = mode === "Fill-in-the-Blank" ? FITB_SYSTEM_PROMPT : BUGFIX_SYSTEM_PROMPT;
+
   try {
     const buffer = Buffer.from(await image.arrayBuffer());
     const base64Image = buffer.toString("base64");
@@ -89,7 +130,7 @@ export async function POST(request: NextRequest) {
     });
 
     const result = await model.generateContent([
-      `${SYSTEM_PROMPT}\n\nDifficulty: ${difficulty}`,
+      `${systemPrompt}\n\nDifficulty: ${difficulty}`,
       {
         inlineData: {
           mimeType: image.type,
@@ -105,7 +146,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: generated.error }, { status: 422 });
     }
 
-    return NextResponse.json({ ...generated, difficulty });
+    return NextResponse.json({ ...generated, difficulty, mode });
   } catch (error) {
     console.error("Gemini vision generation error:", error);
     return NextResponse.json(

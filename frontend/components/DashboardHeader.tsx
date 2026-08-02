@@ -10,7 +10,11 @@ function getGreeting() {
   return "Good Evening";
 }
 
-export default function DashboardHeader() {
+type DashboardHeaderProps = {
+  name: string;
+};
+
+export default function DashboardHeader({ name }: DashboardHeaderProps) {
   const [greeting, setGreeting] = useState("Good Afternoon");
 
   useEffect(() => {
@@ -22,7 +26,7 @@ export default function DashboardHeader() {
       <div>
         <p className="text-text-muted text-sm mb-1">{greeting} 👋</p>
         <h1 className="text-3xl font-bold text-text-primary">
-          Welcome back, Ponna
+          Welcome back, {name}
         </h1>
         <p className="text-text-secondary mt-1">
           Continue improving your debugging skills today.

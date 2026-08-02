@@ -1,27 +1,17 @@
 import { Bug, PenLine, CheckCircle2, XCircle, Inbox } from "lucide-react";
 
-const activity = [
-  {
-    snippet: "Fix the off-by-one loop",
-    mode: "Bug-Fix",
-    result: "Passed",
-    time: "2 hours ago",
-  },
-  {
-    snippet: "Complete the binary search",
-    mode: "Fill-in-the-Blank",
-    result: "Passed",
-    time: "Yesterday",
-  },
-  {
-    snippet: "Fix the null pointer check",
-    mode: "Bug-Fix",
-    result: "Failed",
-    time: "2 days ago",
-  },
-];
+type ActivityItem = {
+  snippet: string;
+  mode: string;
+  result: string;
+  time: string;
+};
 
-export default function RecentActivity() {
+type RecentActivityProps = {
+  activity: ActivityItem[];
+};
+
+export default function RecentActivity({ activity }: RecentActivityProps) {
   return (
     <div className="p-[1px] rounded-card bg-gradient-to-br from-white/15 to-transparent">
       <div className="rounded-card bg-gradient-to-br from-secondary-bg to-secondary-bg/70 p-6">
@@ -38,13 +28,13 @@ export default function RecentActivity() {
           </div>
         ) : (
           <div className="flex flex-col divide-y divide-border-subtle">
-            {activity.map((item) => {
+            {activity.map((item, index) => {
               const ModeIcon = item.mode === "Bug-Fix" ? Bug : PenLine;
               const passed = item.result === "Passed";
 
               return (
                 <div
-                  key={item.snippet}
+                  key={index}
                   className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                 >
                   <div className="w-9 h-9 rounded-full bg-primary-bg flex items-center justify-center shrink-0">

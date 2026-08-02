@@ -4,17 +4,11 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import Card from "@/components/Card";
 import { useTheme } from "@/context/ThemeContext";
 
-const data = [
-  { day: "Mon", solved: 1 },
-  { day: "Tue", solved: 3 },
-  { day: "Wed", solved: 2 },
-  { day: "Thu", solved: 0 },
-  { day: "Fri", solved: 4 },
-  { day: "Sat", solved: 2 },
-  { day: "Sun", solved: 1 },
-];
+type WeeklyActivityChartProps = {
+  data: { day: string; solved: number }[];
+};
 
-export default function WeeklyActivityChart() {
+export default function WeeklyActivityChart({ data }: WeeklyActivityChartProps) {
   const { darkMode } = useTheme();
 
   const axisColor = darkMode ? "#A7A4C4" : "#7A7295";

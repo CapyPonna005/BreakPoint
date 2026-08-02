@@ -137,6 +137,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
           submittedCode: code,
           language,
           problem: {
+            id: problem.id,
             title: problem.title,
             description: problem.description,
             constraints: problem.constraints,

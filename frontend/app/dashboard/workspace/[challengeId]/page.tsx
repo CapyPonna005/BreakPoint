@@ -1,34 +1,27 @@
-"use client";
-
-import { use, useState } from "react";
 import { notFound } from "next/navigation";
-import ProblemPanel from "@/components/ProblemPanel";
-import Workspace from "@/components/Workspace";
-import StartScreen from "@/components/StartScreen";
-import { getProblemById } from "@/data/problems";
+import { createClient } from "@/lib/supabase/server";
+import { mapRowToProblem } from "@/data/problems";
+import ChallengeWorkspaceClient from "@/components/ChallengeWorkspaceClient";
 
-export default function ChallengeWorkspacePage({
+export default async function ChallengeWorkspacePage({
   params,
 }: {
   params: Promise<{ challengeId: string }>;
 }) {
-  const { challengeId } = use(params);
-  const [started, setStarted] = useState(false);
-  const problem = getProblemById(challengeId);
+  const { challengeId } = await params;
+  const supabase = await createClient();
 
-  if (!problem) {
+  const { data, error } = await supabase
+    .from("problems")
+    .select("*")
+    .eq("id", challengeId)
+    .single();
+
+  if (error || !data) {
     notFound();
   }
 
-  function handleFirstActivity() {
-    setStarted(true);
-  }
+  const problem = mapRowToProblem(data);
 
-  return (
-    <div className="relative flex flex-col md:flex-row min-h-screen bg-primary-bg">
-      <ProblemPanel problem={problem} started={started} />
-      <Workspace problem={problem} started={started} onFirstActivity={handleFirstActivity} />
-      {!started && <StartScreen problem={problem} onStart={handleFirstActivity} />}
-    </div>
-  );
+  return <ChallengeWorkspaceClient problem={problem} />;
 }

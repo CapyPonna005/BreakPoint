@@ -12,8 +12,11 @@ import {
   Zap,
   Flame,
   Skull,
+  Bug,
+  PenLine,
 } from "lucide-react";
-import { addGeneratedProblem, type Problem, type Difficulty } from "@/data/problems";
+import { type Difficulty, type Mode, type FitbBlank } from "@/data/problems";
+import { createClient } from "@/lib/supabase/client";
 
 type Tab = "paste" | "screenshot";
 
@@ -30,6 +33,13 @@ const difficultyStyles: Record<Difficulty, { bg: string; text: string; border: s
   Hard: { bg: "bg-red-500/15", text: "text-red-400", border: "border-red-500" },
 };
 
+// Same Bug/PenLine icon convention RecentActivity.tsx and the Practice mode
+// badge already use for Bug-Fix vs Fill-in-the-Blank.
+const modes: { value: Mode; label: string; icon: typeof Bug }[] = [
+  { value: "Bug-Fix", label: "Bug-Fix", icon: Bug },
+  { value: "Fill-in-the-Blank", label: "Fill-in-the-Blank", icon: PenLine },
+];
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -39,9 +49,11 @@ function slugify(text: string) {
 
 export default function CreateChallengePage() {
   const router = useRouter();
+  const supabase = createClient();
   const [activeTab, setActiveTab] = useState<Tab>("paste");
   const [code, setCode] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
+  const [mode, setMode] = useState<Mode>("Bug-Fix");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
 
@@ -49,6 +61,51 @@ export default function CreateChallengePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Inserts the AI-generated challenge into the problems table, tied to the
+  // logged-in user (RLS requires created_by === auth.uid() exactly — see
+  // schema.sql — so this must be the real user id, never a null fallback).
+  async function saveGeneratedProblem(generated: {
+    title: string;
+    blurb: string;
+    description: string;
+    tags: string[];
+    constraints: string[];
+    examples: { input: string; output: string }[];
+    starterCode: string;
+    blanks?: FitbBlank[];
+  }) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("You must be logged in to create a challenge.");
+    }
+
+    const id = `${slugify(generated.title)}-${Date.now()}`;
+
+    const { error: insertError } = await supabase.from("problems").insert({
+      id,
+      title: generated.title,
+      difficulty,
+      mode,
+      blurb: generated.blurb,
+      description: generated.description,
+      tags: generated.tags,
+      constraints: generated.constraints,
+      examples: generated.examples,
+      starter_code: generated.starterCode,
+      blanks: mode === "Fill-in-the-Blank" ? generated.blanks ?? null : null,
+      created_by: user.id,
+    });
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+
+    return id;
+  }
 
   async function handleGenerate() {
     if (!code.trim()) return;
@@ -60,7 +117,7 @@ export default function CreateChallengePage() {
       const response = await fetch("/api/generate-challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, difficulty }),
+        body: JSON.stringify({ code, difficulty, mode }),
       });
 
       if (!response.ok) {
@@ -68,15 +125,9 @@ export default function CreateChallengePage() {
       }
 
       const generated = await response.json();
+      const id = await saveGeneratedProblem(generated);
 
-      const problem: Problem = {
-        id: `${slugify(generated.title)}-${Date.now()}`,
-        mode: "Bug-Fix", // only mode with real functionality today; see note below for Fill-in-the-Blank
-        ...generated,
-      };
-
-      addGeneratedProblem(problem);
-      router.push(`/dashboard/workspace/${problem.id}`);
+      router.push(`/dashboard/workspace/${id}`);
     } catch {
       setError("Something went wrong generating your challenge. Please try again.");
       setGenerating(false);
@@ -111,6 +162,7 @@ export default function CreateChallengePage() {
       const formData = new FormData();
       formData.append("image", imageFile);
       formData.append("difficulty", difficulty);
+      formData.append("mode", mode);
 
       const response = await fetch("/api/generate-challenge-from-image", {
         method: "POST",
@@ -122,15 +174,9 @@ export default function CreateChallengePage() {
       }
 
       const generated = await response.json();
+      const id = await saveGeneratedProblem(generated);
 
-      const problem: Problem = {
-        id: `${slugify(generated.title)}-${Date.now()}`,
-        mode: "Bug-Fix", // only mode with real functionality today; see note below for Fill-in-the-Blank
-        ...generated,
-      };
-
-      addGeneratedProblem(problem);
-      router.push(`/dashboard/workspace/${problem.id}`);
+      router.push(`/dashboard/workspace/${id}`);
     } catch {
       setError("Something went wrong generating your challenge. Please try again.");
       setGenerating(false);
@@ -173,6 +219,29 @@ export default function CreateChallengePage() {
         </div>
 
         <div className="bg-secondary-bg border border-border-subtle rounded-card p-6">
+          <div className="mb-5">
+            <p className="text-sm text-text-secondary mb-2">Challenge type</p>
+            <div className="flex gap-2">
+              {modes.map(({ value, label, icon: Icon }) => {
+                const isSelected = mode === value;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => setMode(value)}
+                    className={`flex items-center gap-1.5 text-sm px-3.5 py-1.5 rounded-badge border transition cursor-pointer ${
+                      isSelected
+                        ? "bg-accent/15 text-accent border-accent"
+                        : "border-border-subtle text-text-muted hover:text-text-secondary hover:border-text-muted"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="mb-5">
             <p className="text-sm text-text-secondary mb-2">Target difficulty</p>
             <div className="flex gap-2">
