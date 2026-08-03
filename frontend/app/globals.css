@@ -18,14 +18,14 @@
   --background: #0a0a0a;
   --foreground: #ededed;
 
-  /* BreakPoint Design System — Dark Mode (original palette) */
-  --primary-bg: #1E104E;
-  --secondary-bg: #452E5A;
-  --surface: #120B29;
-  --text-primary: #FFFFFF;
-  --text-secondary: #D6D6E7;
-  --text-muted: #A7A4C4;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  /* BreakPoint Design System — Dark Mode (GitHub/NeetCode-inspired neutral palette) */
+  --primary-bg: #0D1117;
+  --secondary-bg: #161B22;
+  --surface: #010409;
+  --text-primary: #E6EDF3;
+  --text-secondary: #C9D1D9;
+  --text-muted: #8B949E;
+  --border-subtle: rgba(240, 246, 252, 0.1);
 }
 
 @theme inline {

@@ -33,7 +33,8 @@ export default function ForgotPasswordPage() {
     // "check your email" state regardless, only surface real failures
     // (e.g. rate limiting) as an error.
     if (error && error.status !== 400) {
-      setError(error.message);
+      console.error("Reset password error:", error);
+      setError(error.message || "Something went wrong. Please try again.");
       return;
     }
 

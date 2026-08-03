@@ -1,6 +1,7 @@
 "use client";
 
 import Editor, { BeforeMount } from "@monaco-editor/react";
+import { useTheme } from "@/context/ThemeContext";
 
 type CodeEditorProps = {
   language: string;
@@ -25,10 +26,22 @@ const handleBeforeMount: BeforeMount = (monaco) => {
     inherit: true,
     rules: [],
     colors: {
-      "editor.background": "#3A2650",
-      "editor.lineHighlightBackground": "#452E5A",
-      "editorLineNumber.foreground": "#A7A4C4",
-      "editorGutter.background": "#3A2650",
+      "editor.background": "#010409",
+      "editor.lineHighlightBackground": "#161B22",
+      "editorLineNumber.foreground": "#8B949E",
+      "editorGutter.background": "#010409",
+    },
+  });
+
+  monaco.editor.defineTheme("breakpoint-light", {
+    base: "vs",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#EDEAF6",
+      "editor.lineHighlightBackground": "#FFFFFF",
+      "editorLineNumber.foreground": "#7A7295",
+      "editorGutter.background": "#EDEAF6",
     },
   });
 };
@@ -40,13 +53,15 @@ export default function CodeEditor({
   readOnly = false,
   fontSize = 14,
 }: CodeEditorProps) {
+  const { darkMode } = useTheme();
+
   return (
     <div className="w-full h-[300px] md:h-[400px] border border-border-subtle rounded-input overflow-hidden">
       <Editor
         height="100%"
         language={languageMap[language]}
         value={value}
-        theme="breakpoint-dark"
+        theme={darkMode ? "breakpoint-dark" : "breakpoint-light"}
         beforeMount={handleBeforeMount}
         onChange={(newValue) => onChange?.(newValue ?? "")}
         options={{

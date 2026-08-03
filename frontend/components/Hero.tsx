@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <section className="w-full bg-primary-bg px-4 py-20 sm:py-28">
@@ -19,12 +21,19 @@ export default function Hero() {
             like a professional developer.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <button className="bg-accent text-white px-6 py-3 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer">
+            <Link
+              href="/register"
+              className="bg-accent text-white px-6 py-3 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer text-center"
+            >
               Start Practicing
-            </button>
-            <button className="bg-secondary-bg border border-border-subtle text-text-primary px-6 py-3 rounded-button font-medium hover:bg-primary-bg transition cursor-pointer">
+            </Link>
+
+            <Link
+              href="#how-it-works"
+              className="bg-secondary-bg border border-border-subtle text-text-primary px-6 py-3 rounded-button font-medium hover:bg-primary-bg transition cursor-pointer text-center"
+            >
               See How It Works
-            </button>
+            </Link>
           </div>
         </div>
 

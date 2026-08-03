@@ -26,7 +26,7 @@ export default function DashboardHeader({ name }: DashboardHeaderProps) {
       <div>
         <p className="text-text-muted text-sm mb-1">{greeting} 👋</p>
         <h1 className="text-3xl font-bold text-text-primary">
-          Welcome back, {name}
+          Welcome back, {name}!
         </h1>
         <p className="text-text-secondary mt-1">
           Continue improving your debugging skills today.

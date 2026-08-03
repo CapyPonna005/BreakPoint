@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { Zap } from "lucide-react";
-import Button from "@/components/Button";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
@@ -13,7 +13,12 @@ export default function Navbar() {
       </div>
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        <Button>Get Started</Button>
+        <Link
+          href="/register"
+          className="bg-accent text-white px-4 py-2 rounded-button text-sm font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+        >
+          Get Started
+        </Link>
       </div>
     </nav>
   );

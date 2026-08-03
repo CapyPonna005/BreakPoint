@@ -4,7 +4,7 @@ type CardProps = {
 
 export default function Card({ children }: CardProps) {
   return (
-    <div className="p-8 bg-secondary-bg/90 border border-border-subtle rounded-card shadow-md">
+    <div className="h-full flex flex-col p-8 bg-secondary-bg/90 border border-border-subtle rounded-card shadow-md">
       {children}
     </div>
   );

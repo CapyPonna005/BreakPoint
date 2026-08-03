@@ -21,7 +21,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="w-full bg-surface py-20">
+    <section id="how-it-works" className="w-full bg-surface py-20 scroll-mt-20">
       <Container>
         <SectionTitle eyebrow="The process">How BreakPoint Works</SectionTitle>
         <div className="flex flex-col sm:flex-row gap-6">

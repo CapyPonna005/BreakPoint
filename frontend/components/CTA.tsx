@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Container from "@/components/Container";
 
 export default function CTA() {
@@ -15,9 +16,12 @@ export default function CTA() {
             <p className="relative text-text-secondary max-w-xl mx-auto mb-8">
               Practice curated challenges, or turn your own code into one — no setup required.
             </p>
-            <button className="relative bg-accent text-white px-8 py-3 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer">
+            <Link
+              href="/register"
+              className="relative inline-block bg-accent text-white px-8 py-3 rounded-button font-medium hover:brightness-110 active:brightness-90 transition cursor-pointer"
+            >
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </Container>

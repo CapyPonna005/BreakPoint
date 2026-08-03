@@ -72,7 +72,7 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   const [{ data: profile, error: profileError }, { data: submissions, error: submissionsError }] = await Promise.all([
-    supabase.from("profiles").select("bio, level, xp, streak").eq("id", user?.id).single(),
+    supabase.from("profiles").select("bio, level, xp, streak, avatar_url, username").eq("id", user?.id).single(),
     supabase
       .from("submissions")
       .select("id, score, tests_passed, tests_total, submitted_at, problems(title, mode)")
@@ -140,6 +140,8 @@ export default async function DashboardPage() {
           level={profile?.level ?? 1}
           xp={profile?.xp ?? 0}
           streak={currentStreak}
+          avatarUrl={profile?.avatar_url ?? null}
+          username={profile?.username ?? null}
         />
       </div>
 

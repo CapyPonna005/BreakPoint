@@ -37,6 +37,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Username is required. If a logged-in user hasn't set one yet, force them
+  // to /dashboard/settings until they do — except on Settings itself (would
+  // loop) and paths not under /dashboard at all (e.g. logging out via a
+  // Sidebar call that navigates to /login isn't blocked by this).
+  if (isProtectedRoute && user) {
+    const isSettingsRoute = request.nextUrl.pathname.startsWith("/dashboard/settings");
+
+    if (!isSettingsRoute) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile?.username) {
+        const settingsUrl = new URL("/dashboard/settings", request.url);
+        return NextResponse.redirect(settingsUrl);
+      }
+    }
+  }
+
   return supabaseResponse;
 }
 

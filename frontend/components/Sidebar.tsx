@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Code2, LogOut, X, Sparkles, PanelLeftClose } from "lucide-react";
+import { LayoutDashboard, Code2, LogOut, X, Sparkles, Settings } from "lucide-react";
 import Tooltip from "@/components/Tooltip";
 import { createClient } from "@/lib/supabase/client";
 
@@ -10,16 +10,16 @@ const links = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Practice", href: "/dashboard/practice", icon: Code2 },
   { label: "Create", href: "/dashboard/create", icon: Sparkles },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 type SidebarProps = {
   isOpen: boolean;
   onClose: () => void;
   desktopVisible: boolean;
-  onToggleDesktop: () => void;
 };
 
-export default function Sidebar({ isOpen, onClose, desktopVisible, onToggleDesktop }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, desktopVisible }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -50,30 +50,16 @@ export default function Sidebar({ isOpen, onClose, desktopVisible, onToggleDeskt
         }`}
       >
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="md:hidden">
-              <Tooltip label="Close menu">
-                <button
-                  onClick={onClose}
-                  className="text-text-muted hover:text-text-primary transition"
-                  aria-label="Close menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </Tooltip>
-            </div>
-
-            <div className="hidden md:block ml-auto">
-              <Tooltip label="Hide sidebar">
-                <button
-                  onClick={onToggleDesktop}
-                  className="text-text-muted hover:text-text-primary transition"
-                  aria-label="Hide sidebar"
-                >
-                  <PanelLeftClose className="w-5 h-5" />
-                </button>
-              </Tooltip>
-            </div>
+          <div className="md:hidden flex justify-end mb-4">
+            <Tooltip label="Close menu">
+              <button
+                onClick={onClose}
+                className="text-text-muted hover:text-text-primary transition"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </Tooltip>
           </div>
 
           <nav className="flex flex-col gap-1">
