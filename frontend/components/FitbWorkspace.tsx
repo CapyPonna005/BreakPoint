@@ -5,6 +5,7 @@ import { Loader2, RotateCcw } from "lucide-react";
 import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
 import XpPopup from "@/components/XpPopup";
+import PostCompletionPrompt from "@/components/PostCompletionPrompt";
 import { useToast } from "@/context/ToastContext";
 import type { Problem, FitbBlank } from "@/data/problems";
 import type { XpAwardResult } from "@/lib/awardXp";
@@ -61,6 +62,7 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showXpPopup, setShowXpPopup] = useState(false);
+  const [showNextSteps, setShowNextSteps] = useState(false);
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const [error, setError] = useState("");
   const { showToast } = useToast();
@@ -134,7 +136,14 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
     setShowResults(false);
     if (gradeResult?.xpAward) {
       setShowXpPopup(true);
+    } else {
+      setShowNextSteps(true);
     }
+  }
+
+  function handleXpPopupClose() {
+    setShowXpPopup(false);
+    setShowNextSteps(true);
   }
 
   return (
@@ -223,8 +232,10 @@ export default function FitbWorkspace({ problem, started, onFirstActivity }: Fit
       )}
 
       {showXpPopup && gradeResult?.xpAward && (
-        <XpPopup award={gradeResult.xpAward} onClose={() => setShowXpPopup(false)} />
+        <XpPopup award={gradeResult.xpAward} onClose={handleXpPopupClose} />
       )}
+
+      {showNextSteps && <PostCompletionPrompt currentProblemId={problem.id} />}
     </section>
   );
 }

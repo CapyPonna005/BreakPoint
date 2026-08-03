@@ -60,7 +60,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-:focus-visible:not(input) {
+/* Chrome/Safari force a white (or yellow) background on autofilled inputs
+   and ignore background-color entirely — the only reliable override is a
+   huge inset box-shadow filled with our own background color. The long
+   transition-delay stops the browser's own color from flashing in first. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--secondary-bg) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Excludes input AND textarea — both have their own custom focus-state
+   styling (border-accent) and don't need/want the global ring stacking on
+   top. Textarea was missed originally (only input was excluded), causing a
+   visible doubled-border on the Create page code textarea and the Settings
+   bio field. */
+:focus-visible:not(input):not(textarea) {
   outline: 2px solid #ff653f;
   outline-offset: 2px;
   border-radius: 4px;

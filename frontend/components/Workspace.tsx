@@ -8,6 +8,7 @@ import ConsolePanel from "@/components/ConsolePanel";
 import Timer from "@/components/Timer";
 import ResultsModal from "@/components/ResultsModal";
 import XpPopup from "@/components/XpPopup";
+import PostCompletionPrompt from "@/components/PostCompletionPrompt";
 import { useToast } from "@/context/ToastContext";
 import type { Problem } from "@/data/problems";
 import { starterTemplates } from "@/data/starterTemplates";
@@ -51,6 +52,7 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
   const [timerRunning, setTimerRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showXpPopup, setShowXpPopup] = useState(false);
+  const [showNextSteps, setShowNextSteps] = useState(false);
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const { showToast } = useToast();
   const consoleEndRef = useRef<HTMLDivElement>(null);
@@ -182,7 +184,14 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
     setShowResults(false);
     if (gradeResult?.xpAward) {
       setShowXpPopup(true);
+    } else {
+      setShowNextSteps(true);
     }
+  }
+
+  function handleXpPopupClose() {
+    setShowXpPopup(false);
+    setShowNextSteps(true);
   }
 
   return (
@@ -275,8 +284,10 @@ export default function Workspace({ problem, started, onFirstActivity }: Workspa
       )}
 
       {showXpPopup && gradeResult?.xpAward && (
-        <XpPopup award={gradeResult.xpAward} onClose={() => setShowXpPopup(false)} />
+        <XpPopup award={gradeResult.xpAward} onClose={handleXpPopupClose} />
       )}
+
+      {showNextSteps && <PostCompletionPrompt currentProblemId={problem.id} />}
     </section>
   );
 }

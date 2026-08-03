@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Code2, LogOut, X, Sparkles, Settings } from "lucide-react";
+import { LayoutDashboard, Code2, LogOut, Sparkles, X, FileCode, Settings } from "lucide-react";
 import Tooltip from "@/components/Tooltip";
 import { createClient } from "@/lib/supabase/client";
 
 const links = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Practice", href: "/dashboard/practice", icon: Code2 },
+  { label: "Snippets", href: "/dashboard/snippets", icon: FileCode },
   { label: "Create", href: "/dashboard/create", icon: Sparkles },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
@@ -50,7 +51,7 @@ export default function Sidebar({ isOpen, onClose, desktopVisible }: SidebarProp
         }`}
       >
         <div>
-          <div className="md:hidden flex justify-end mb-4">
+          <div className="md:hidden mb-4">
             <Tooltip label="Close menu">
               <button
                 onClick={onClose}

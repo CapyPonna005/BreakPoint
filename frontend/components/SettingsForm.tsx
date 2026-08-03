@@ -181,11 +181,11 @@ export default function SettingsForm({
       />
 
       <div
-        className={`relative border rounded-input px-3 py-2 transition-colors border-border-subtle focus-within:border-accent`}
+        className={`relative border rounded-input px-3 py-2 transition-colors border-border-subtle focus-within:border-accent group`}
       >
         <label
           htmlFor="bio"
-          className={`absolute left-2.5 -top-2.5 text-xs px-1 bg-secondary-bg ${
+          className={`absolute left-2.5 -top-2.5 text-xs px-1 bg-secondary-bg transition-colors group-focus-within:text-accent ${
             bio.length > 0 ? "text-text-secondary" : "text-text-muted"
           }`}
         >

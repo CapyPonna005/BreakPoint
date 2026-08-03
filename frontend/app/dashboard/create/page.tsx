@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Code2,
   Image as ImageIcon,
@@ -16,6 +16,7 @@ import {
   PenLine,
 } from "lucide-react";
 import { type Difficulty, type Mode, type FitbBlank } from "@/data/problems";
+import { exampleSnippets } from "@/data/exampleSnippets";
 import { createClient } from "@/lib/supabase/client";
 
 type Tab = "paste" | "screenshot";
@@ -47,8 +48,9 @@ function slugify(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function CreateChallengePage() {
+function CreateChallengeForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [activeTab, setActiveTab] = useState<Tab>("paste");
   const [code, setCode] = useState("");
@@ -61,6 +63,21 @@ export default function CreateChallengePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-fills the textarea when arriving from the Snippets page
+  // (/dashboard/create?snippet=array-sum) instead of showing example chips
+  // inline here — kept the Create page itself uncluttered.
+  useEffect(() => {
+    const snippetId = searchParams.get("snippet");
+    if (snippetId) {
+      const match = exampleSnippets.find((s) => s.id === snippetId);
+      if (match) {
+        setCode(match.code);
+        setActiveTab("paste");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Inserts the AI-generated challenge into the problems table, tied to the
   // logged-in user (RLS requires created_by === auth.uid() exactly — see
@@ -371,5 +388,13 @@ export default function CreateChallengePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateChallengePage() {
+  return (
+    <Suspense fallback={null}>
+      <CreateChallengeForm />
+    </Suspense>
   );
 }
