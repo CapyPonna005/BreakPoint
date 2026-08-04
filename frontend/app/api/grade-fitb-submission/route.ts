@@ -111,16 +111,16 @@ export async function POST(request: NextRequest) {
 
     if (user) {
       const { error: insertError } = await supabase.from("submissions").insert({
-        user_id: user.id,
-        problem_id: problemId,
-        submitted_code: JSON.stringify(selections),
-        language: "Fill-in-the-Blank",
-        score,
-        tests_passed: testsPassed,
-        tests_total: testsTotal,
-        feedback,
-        notes,
-      });
+      user_id: user.id,
+      problem_id: problemId,
+      submitted_code: JSON.stringify(selections),
+      language: "Fill-in-the-Blank",
+      score,
+      tests_passed: testsPassed,
+      tests_total: testsTotal,
+      feedback,
+      notes,
+    });
 
       if (insertError) {
         console.error("Failed to save FITB submission:", insertError);

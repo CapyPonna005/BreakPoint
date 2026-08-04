@@ -113,7 +113,6 @@ export default function SettingsForm({
 
       showToast("Settings saved", "success");
       router.push("/dashboard");
-      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
